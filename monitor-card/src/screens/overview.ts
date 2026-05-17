@@ -60,11 +60,13 @@ export class MonitorOverview extends LitElement {
     const hass = this.card.hass;
 
     /* sensor reads with demo fallbacks */
-    const peso = entity(hass, "peso") || (hass.states["sensor.weight"]?.state ?? "78,4");
+    const peso = hass.states["sensor.withings_peso"]?.state ?? entity(hass, "peso") ?? "—";
     const pesoDelta = -0.6;
     const allenMese = entity(hass, "allenamenti_mese") || "14";
     const punti = entity(hass, "punti") || "2.840";
     const streak = entity(hass, "streak") || "12";
+    const passi = hass.states["sensor.withings_passi_oggi"]?.state ?? "—";
+    const calorie = hass.states["sensor.withings_calorie_attive_bruciate_oggi"]?.state ?? "—";
 
     /* sparkline */
     const sparkW = 160;

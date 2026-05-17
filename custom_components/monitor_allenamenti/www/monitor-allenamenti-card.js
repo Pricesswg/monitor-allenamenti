@@ -1,4 +1,4 @@
-function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPropertyDescriptor(e,i):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,i,r);else for(var n=t.length-1;n>=0;n--)(s=t[n])&&(a=(o<3?s(a):o>3?s(e,i,a):s(e,i))||a);return o>3&&a&&Object.defineProperty(e,i,a),a}"function"==typeof SuppressedError&&SuppressedError;const e=globalThis,i=e.ShadowRoot&&(void 0===e.ShadyCSS||e.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,r=Symbol(),s=new WeakMap;let o=class{constructor(t,e,i){if(this._$cssResult$=!0,i!==r)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e}get styleSheet(){let t=this.o;const e=this.t;if(i&&void 0===t){const i=void 0!==e&&1===e.length;i&&(t=s.get(e)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),i&&s.set(e,t))}return t}toString(){return this.cssText}};const a=(t,...e)=>{const i=1===t.length?t[0]:e.reduce((e,i,r)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+t[r+1],t[0]);return new o(i,t,r)},n=i?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const i of t.cssRules)e+=i.cssText;return(t=>new o("string"==typeof t?t:t+"",void 0,r))(e)})(t):t,{is:l,defineProperty:d,getOwnPropertyDescriptor:c,getOwnPropertyNames:p,getOwnPropertySymbols:h,getPrototypeOf:v}=Object,g=globalThis,u=g.trustedTypes,m=u?u.emptyScript:"",x=g.reactiveElementPolyfillSupport,b=(t,e)=>t,f={toAttribute(t,e){switch(e){case Boolean:t=t?m:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,e){let i=t;switch(e){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t)}catch(t){i=null}}return i}},_=(t,e)=>!l(t,e),k={attribute:!0,type:String,converter:f,reflect:!1,useDefault:!1,hasChanged:_};Symbol.metadata??=Symbol("metadata"),g.litPropertyMetadata??=new WeakMap;let y=class extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,e=k){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(t)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(t,e),!e.noAccessor){const i=Symbol(),r=this.getPropertyDescriptor(t,i,e);void 0!==r&&d(this.prototype,t,r)}}static getPropertyDescriptor(t,e,i){const{get:r,set:s}=c(this.prototype,t)??{get(){return this[e]},set(t){this[e]=t}};return{get:r,set(e){const o=r?.call(this);s?.call(this,e),this.requestUpdate(t,o,i)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??k}static _$Ei(){if(this.hasOwnProperty(b("elementProperties")))return;const t=v(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties)}static finalize(){if(this.hasOwnProperty(b("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(b("properties"))){const t=this.properties,e=[...p(t),...h(t)];for(const i of e)this.createProperty(i,t[i])}const t=this[Symbol.metadata];if(null!==t){const e=litPropertyMetadata.get(t);if(void 0!==e)for(const[t,i]of e)this.elementProperties.set(t,i)}this._$Eh=new Map;for(const[t,e]of this.elementProperties){const i=this._$Eu(t,e);void 0!==i&&this._$Eh.set(i,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(t){const e=[];if(Array.isArray(t)){const i=new Set(t.flat(1/0).reverse());for(const t of i)e.unshift(n(t))}else void 0!==t&&e.push(n(t));return e}static _$Eu(t,e){const i=e.attribute;return!1===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this))}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.()}removeController(t){this._$EO?.delete(t)}_$E_(){const t=new Map,e=this.constructor.elementProperties;for(const i of e.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t)}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return((t,r)=>{if(i)t.adoptedStyleSheets=r.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const i of r){const r=document.createElement("style"),s=e.litNonce;void 0!==s&&r.setAttribute("nonce",s),r.textContent=i.cssText,t.appendChild(r)}})(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(t=>t.hostConnected?.())}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.())}attributeChangedCallback(t,e,i){this._$AK(t,i)}_$ET(t,e){const i=this.constructor.elementProperties.get(t),r=this.constructor._$Eu(t,i);if(void 0!==r&&!0===i.reflect){const s=(void 0!==i.converter?.toAttribute?i.converter:f).toAttribute(e,i.type);this._$Em=t,null==s?this.removeAttribute(r):this.setAttribute(r,s),this._$Em=null}}_$AK(t,e){const i=this.constructor,r=i._$Eh.get(t);if(void 0!==r&&this._$Em!==r){const t=i.getPropertyOptions(r),s="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:f;this._$Em=r;const o=s.fromAttribute(e,t.type);this[r]=o??this._$Ej?.get(r)??o,this._$Em=null}}requestUpdate(t,e,i,r=!1,s){if(void 0!==t){const o=this.constructor;if(!1===r&&(s=this[t]),i??=o.getPropertyOptions(t),!((i.hasChanged??_)(s,e)||i.useDefault&&i.reflect&&s===this._$Ej?.get(t)&&!this.hasAttribute(o._$Eu(t,i))))return;this.C(t,e,i)}!1===this.isUpdatePending&&(this._$ES=this._$EP())}C(t,e,{useDefault:i,reflect:r,wrapped:s},o){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,o??e??this[t]),!0!==s||void 0!==o)||(this._$AL.has(t)||(this.hasUpdated||i||(e=void 0),this._$AL.set(t,e)),!0===r&&this._$Em!==t&&(this._$Eq??=new Set).add(t))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,e]of this._$Ep)this[t]=e;this._$Ep=void 0}const t=this.constructor.elementProperties;if(t.size>0)for(const[e,i]of t){const{wrapped:t}=i,r=this[e];!0!==t||this._$AL.has(e)||void 0===r||this.C(e,void 0,i,r)}}let t=!1;const e=this._$AL;try{t=this.shouldUpdate(e),t?(this.willUpdate(e),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(e)):this._$EM()}catch(e){throw t=!1,this._$EM(),e}t&&this._$AE(e)}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return!0}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM()}updated(t){}firstUpdated(t){}};y.elementStyles=[],y.shadowRootOptions={mode:"open"},y[b("elementProperties")]=new Map,y[b("finalized")]=new Map,x?.({ReactiveElement:y}),(g.reactiveElementVersions??=[]).push("2.1.2");const $=globalThis,w=t=>t,C=$.trustedTypes,A=C?C.createPolicy("lit-html",{createHTML:t=>t}):void 0,z="$lit$",M=`lit$${Math.random().toFixed(9).slice(2)}$`,S="?"+M,P=`<${S}>`,E=document,H=()=>E.createComment(""),I=t=>null===t||"object"!=typeof t&&"function"!=typeof t,T=Array.isArray,O="[ \t\n\f\r]",B=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,j=/-->/g,N=/>/g,R=RegExp(`>|${O}(?:([^\\s"'>=/]+)(${O}*=${O}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),D=/'/g,U=/"/g,L=/^(?:script|style|textarea|title)$/i,V=t=>(e,...i)=>({_$litType$:t,strings:e,values:i}),W=V(1),F=V(2),q=Symbol.for("lit-noChange"),G=Symbol.for("lit-nothing"),K=new WeakMap,Z=E.createTreeWalker(E,129);function J(t,e){if(!T(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==A?A.createHTML(e):e}const X=(t,e)=>{const i=t.length-1,r=[];let s,o=2===e?"<svg>":3===e?"<math>":"",a=B;for(let e=0;e<i;e++){const i=t[e];let n,l,d=-1,c=0;for(;c<i.length&&(a.lastIndex=c,l=a.exec(i),null!==l);)c=a.lastIndex,a===B?"!--"===l[1]?a=j:void 0!==l[1]?a=N:void 0!==l[2]?(L.test(l[2])&&(s=RegExp("</"+l[2],"g")),a=R):void 0!==l[3]&&(a=R):a===R?">"===l[0]?(a=s??B,d=-1):void 0===l[1]?d=-2:(d=a.lastIndex-l[2].length,n=l[1],a=void 0===l[3]?R:'"'===l[3]?U:D):a===U||a===D?a=R:a===j||a===N?a=B:(a=R,s=void 0);const p=a===R&&t[e+1].startsWith("/>")?" ":"";o+=a===B?i+P:d>=0?(r.push(n),i.slice(0,d)+z+i.slice(d)+M+p):i+M+(-2===d?e:p)}return[J(t,o+(t[i]||"<?>")+(2===e?"</svg>":3===e?"</math>":"")),r]};class Y{constructor({strings:t,_$litType$:e},i){let r;this.parts=[];let s=0,o=0;const a=t.length-1,n=this.parts,[l,d]=X(t,e);if(this.el=Y.createElement(l,i),Z.currentNode=this.el.content,2===e||3===e){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes)}for(;null!==(r=Z.nextNode())&&n.length<a;){if(1===r.nodeType){if(r.hasAttributes())for(const t of r.getAttributeNames())if(t.endsWith(z)){const e=d[o++],i=r.getAttribute(t).split(M),a=/([.?@])?(.*)/.exec(e);n.push({type:1,index:s,name:a[2],strings:i,ctor:"."===a[1]?rt:"?"===a[1]?st:"@"===a[1]?ot:it}),r.removeAttribute(t)}else t.startsWith(M)&&(n.push({type:6,index:s}),r.removeAttribute(t));if(L.test(r.tagName)){const t=r.textContent.split(M),e=t.length-1;if(e>0){r.textContent=C?C.emptyScript:"";for(let i=0;i<e;i++)r.append(t[i],H()),Z.nextNode(),n.push({type:2,index:++s});r.append(t[e],H())}}}else if(8===r.nodeType)if(r.data===S)n.push({type:2,index:s});else{let t=-1;for(;-1!==(t=r.data.indexOf(M,t+1));)n.push({type:7,index:s}),t+=M.length-1}s++}}static createElement(t,e){const i=E.createElement("template");return i.innerHTML=t,i}}function Q(t,e,i=t,r){if(e===q)return e;let s=void 0!==r?i._$Co?.[r]:i._$Cl;const o=I(e)?void 0:e._$litDirective$;return s?.constructor!==o&&(s?._$AO?.(!1),void 0===o?s=void 0:(s=new o(t),s._$AT(t,i,r)),void 0!==r?(i._$Co??=[])[r]=s:i._$Cl=s),void 0!==s&&(e=Q(t,s._$AS(t,e.values),s,r)),e}class tt{constructor(t,e){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:e},parts:i}=this._$AD,r=(t?.creationScope??E).importNode(e,!0);Z.currentNode=r;let s=Z.nextNode(),o=0,a=0,n=i[0];for(;void 0!==n;){if(o===n.index){let e;2===n.type?e=new et(s,s.nextSibling,this,t):1===n.type?e=new n.ctor(s,n.name,n.strings,this,t):6===n.type&&(e=new at(s,this,t)),this._$AV.push(e),n=i[++a]}o!==n?.index&&(s=Z.nextNode(),o++)}return Z.currentNode=E,r}p(t){let e=0;for(const i of this._$AV)void 0!==i&&(void 0!==i.strings?(i._$AI(t,i,e),e+=i.strings.length-2):i._$AI(t[e])),e++}}class et{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,e,i,r){this.type=2,this._$AH=G,this._$AN=void 0,this._$AA=t,this._$AB=e,this._$AM=i,this.options=r,this._$Cv=r?.isConnected??!0}get parentNode(){let t=this._$AA.parentNode;const e=this._$AM;return void 0!==e&&11===t?.nodeType&&(t=e.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,e=this){t=Q(this,t,e),I(t)?t===G||null==t||""===t?(this._$AH!==G&&this._$AR(),this._$AH=G):t!==this._$AH&&t!==q&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):(t=>T(t)||"function"==typeof t?.[Symbol.iterator])(t)?this.k(t):this._(t)}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}_(t){this._$AH!==G&&I(this._$AH)?this._$AA.nextSibling.data=t:this.T(E.createTextNode(t)),this._$AH=t}$(t){const{values:e,_$litType$:i}=t,r="number"==typeof i?this._$AC(t):(void 0===i.el&&(i.el=Y.createElement(J(i.h,i.h[0]),this.options)),i);if(this._$AH?._$AD===r)this._$AH.p(e);else{const t=new tt(r,this),i=t.u(this.options);t.p(e),this.T(i),this._$AH=t}}_$AC(t){let e=K.get(t.strings);return void 0===e&&K.set(t.strings,e=new Y(t)),e}k(t){T(this._$AH)||(this._$AH=[],this._$AR());const e=this._$AH;let i,r=0;for(const s of t)r===e.length?e.push(i=new et(this.O(H()),this.O(H()),this,this.options)):i=e[r],i._$AI(s),r++;r<e.length&&(this._$AR(i&&i._$AB.nextSibling,r),e.length=r)}_$AR(t=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);t!==this._$AB;){const e=w(t).nextSibling;w(t).remove(),t=e}}setConnected(t){void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t))}}class it{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,e,i,r,s){this.type=1,this._$AH=G,this._$AN=void 0,this.element=t,this.name=e,this._$AM=r,this.options=s,i.length>2||""!==i[0]||""!==i[1]?(this._$AH=Array(i.length-1).fill(new String),this.strings=i):this._$AH=G}_$AI(t,e=this,i,r){const s=this.strings;let o=!1;if(void 0===s)t=Q(this,t,e,0),o=!I(t)||t!==this._$AH&&t!==q,o&&(this._$AH=t);else{const r=t;let a,n;for(t=s[0],a=0;a<s.length-1;a++)n=Q(this,r[i+a],e,a),n===q&&(n=this._$AH[a]),o||=!I(n)||n!==this._$AH[a],n===G?t=G:t!==G&&(t+=(n??"")+s[a+1]),this._$AH[a]=n}o&&!r&&this.j(t)}j(t){t===G?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"")}}class rt extends it{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===G?void 0:t}}class st extends it{constructor(){super(...arguments),this.type=4}j(t){this.element.toggleAttribute(this.name,!!t&&t!==G)}}class ot extends it{constructor(t,e,i,r,s){super(t,e,i,r,s),this.type=5}_$AI(t,e=this){if((t=Q(this,t,e,0)??G)===q)return;const i=this._$AH,r=t===G&&i!==G||t.capture!==i.capture||t.once!==i.once||t.passive!==i.passive,s=t!==G&&(i===G||r);r&&this.element.removeEventListener(this.name,this,i),s&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t)}}class at{constructor(t,e,i){this.element=t,this.type=6,this._$AN=void 0,this._$AM=e,this.options=i}get _$AU(){return this._$AM._$AU}_$AI(t){Q(this,t)}}const nt=$.litHtmlPolyfillSupport;nt?.(Y,et),($.litHtmlVersions??=[]).push("3.3.3");const lt=globalThis;class dt extends y{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=((t,e,i)=>{const r=i?.renderBefore??e;let s=r._$litPart$;if(void 0===s){const t=i?.renderBefore??null;r._$litPart$=s=new et(e.insertBefore(H(),t),t,void 0,i??{})}return s._$AI(t),s})(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return q}}dt._$litElement$=!0,dt.finalized=!0,lt.litElementHydrateSupport?.({LitElement:dt});const ct=lt.litElementPolyfillSupport;ct?.({LitElement:dt}),(lt.litElementVersions??=[]).push("4.2.2");const pt=t=>(e,i)=>{void 0!==i?i.addInitializer(()=>{customElements.define(t,e)}):customElements.define(t,e)},ht={attribute:!0,type:String,converter:f,reflect:!1,hasChanged:_},vt=(t=ht,e,i)=>{const{kind:r,metadata:s}=i;let o=globalThis.litPropertyMetadata.get(s);if(void 0===o&&globalThis.litPropertyMetadata.set(s,o=new Map),"setter"===r&&((t=Object.create(t)).wrapped=!0),o.set(i.name,t),"accessor"===r){const{name:r}=i;return{set(i){const s=e.get.call(this);e.set.call(this,i),this.requestUpdate(r,s,t,!0,i)},init(e){return void 0!==e&&this.C(r,void 0,t,e),e}}}if("setter"===r){const{name:r}=i;return function(i){const s=this[r];e.call(this,i),this.requestUpdate(r,s,t,!0,i)}}throw Error("Unsupported decorator location: "+r)};function gt(t){return(e,i)=>"object"==typeof i?vt(t,e,i):((t,e,i)=>{const r=e.hasOwnProperty(i);return e.constructor.createProperty(i,t),r?Object.getOwnPropertyDescriptor(e,i):void 0})(t,e,i)}function ut(t){return gt({...t,state:!0,attribute:!1})}const mt=a`
+function t(t,e,i,s){var r,o=arguments.length,a=o<3?e:null===s?s=Object.getOwnPropertyDescriptor(e,i):s;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,i,s);else for(var n=t.length-1;n>=0;n--)(r=t[n])&&(a=(o<3?r(a):o>3?r(e,i,a):r(e,i))||a);return o>3&&a&&Object.defineProperty(e,i,a),a}"function"==typeof SuppressedError&&SuppressedError;const e=globalThis,i=e.ShadowRoot&&(void 0===e.ShadyCSS||e.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),r=new WeakMap;let o=class{constructor(t,e,i){if(this._$cssResult$=!0,i!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e}get styleSheet(){let t=this.o;const e=this.t;if(i&&void 0===t){const i=void 0!==e&&1===e.length;i&&(t=r.get(e)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),i&&r.set(e,t))}return t}toString(){return this.cssText}};const a=(t,...e)=>{const i=1===t.length?t[0]:e.reduce((e,i,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+t[s+1],t[0]);return new o(i,t,s)},n=i?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const i of t.cssRules)e+=i.cssText;return(t=>new o("string"==typeof t?t:t+"",void 0,s))(e)})(t):t,{is:l,defineProperty:d,getOwnPropertyDescriptor:c,getOwnPropertyNames:p,getOwnPropertySymbols:h,getPrototypeOf:v}=Object,g=globalThis,u=g.trustedTypes,m=u?u.emptyScript:"",x=g.reactiveElementPolyfillSupport,f=(t,e)=>t,b={toAttribute(t,e){switch(e){case Boolean:t=t?m:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,e){let i=t;switch(e){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t)}catch(t){i=null}}return i}},_=(t,e)=>!l(t,e),k={attribute:!0,type:String,converter:b,reflect:!1,useDefault:!1,hasChanged:_};Symbol.metadata??=Symbol("metadata"),g.litPropertyMetadata??=new WeakMap;let y=class extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,e=k){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(t)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(t,e),!e.noAccessor){const i=Symbol(),s=this.getPropertyDescriptor(t,i,e);void 0!==s&&d(this.prototype,t,s)}}static getPropertyDescriptor(t,e,i){const{get:s,set:r}=c(this.prototype,t)??{get(){return this[e]},set(t){this[e]=t}};return{get:s,set(e){const o=s?.call(this);r?.call(this,e),this.requestUpdate(t,o,i)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??k}static _$Ei(){if(this.hasOwnProperty(f("elementProperties")))return;const t=v(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties)}static finalize(){if(this.hasOwnProperty(f("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(f("properties"))){const t=this.properties,e=[...p(t),...h(t)];for(const i of e)this.createProperty(i,t[i])}const t=this[Symbol.metadata];if(null!==t){const e=litPropertyMetadata.get(t);if(void 0!==e)for(const[t,i]of e)this.elementProperties.set(t,i)}this._$Eh=new Map;for(const[t,e]of this.elementProperties){const i=this._$Eu(t,e);void 0!==i&&this._$Eh.set(i,t)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(t){const e=[];if(Array.isArray(t)){const i=new Set(t.flat(1/0).reverse());for(const t of i)e.unshift(n(t))}else void 0!==t&&e.push(n(t));return e}static _$Eu(t,e){const i=e.attribute;return!1===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this))}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.()}removeController(t){this._$EO?.delete(t)}_$E_(){const t=new Map,e=this.constructor.elementProperties;for(const i of e.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t)}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return((t,s)=>{if(i)t.adoptedStyleSheets=s.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const i of s){const s=document.createElement("style"),r=e.litNonce;void 0!==r&&s.setAttribute("nonce",r),s.textContent=i.cssText,t.appendChild(s)}})(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(t=>t.hostConnected?.())}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.())}attributeChangedCallback(t,e,i){this._$AK(t,i)}_$ET(t,e){const i=this.constructor.elementProperties.get(t),s=this.constructor._$Eu(t,i);if(void 0!==s&&!0===i.reflect){const r=(void 0!==i.converter?.toAttribute?i.converter:b).toAttribute(e,i.type);this._$Em=t,null==r?this.removeAttribute(s):this.setAttribute(s,r),this._$Em=null}}_$AK(t,e){const i=this.constructor,s=i._$Eh.get(t);if(void 0!==s&&this._$Em!==s){const t=i.getPropertyOptions(s),r="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:b;this._$Em=s;const o=r.fromAttribute(e,t.type);this[s]=o??this._$Ej?.get(s)??o,this._$Em=null}}requestUpdate(t,e,i,s=!1,r){if(void 0!==t){const o=this.constructor;if(!1===s&&(r=this[t]),i??=o.getPropertyOptions(t),!((i.hasChanged??_)(r,e)||i.useDefault&&i.reflect&&r===this._$Ej?.get(t)&&!this.hasAttribute(o._$Eu(t,i))))return;this.C(t,e,i)}!1===this.isUpdatePending&&(this._$ES=this._$EP())}C(t,e,{useDefault:i,reflect:s,wrapped:r},o){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,o??e??this[t]),!0!==r||void 0!==o)||(this._$AL.has(t)||(this.hasUpdated||i||(e=void 0),this._$AL.set(t,e)),!0===s&&this._$Em!==t&&(this._$Eq??=new Set).add(t))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,e]of this._$Ep)this[t]=e;this._$Ep=void 0}const t=this.constructor.elementProperties;if(t.size>0)for(const[e,i]of t){const{wrapped:t}=i,s=this[e];!0!==t||this._$AL.has(e)||void 0===s||this.C(e,void 0,i,s)}}let t=!1;const e=this._$AL;try{t=this.shouldUpdate(e),t?(this.willUpdate(e),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(e)):this._$EM()}catch(e){throw t=!1,this._$EM(),e}t&&this._$AE(e)}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return!0}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM()}updated(t){}firstUpdated(t){}};y.elementStyles=[],y.shadowRootOptions={mode:"open"},y[f("elementProperties")]=new Map,y[f("finalized")]=new Map,x?.({ReactiveElement:y}),(g.reactiveElementVersions??=[]).push("2.1.2");const $=globalThis,w=t=>t,z=$.trustedTypes,A=z?z.createPolicy("lit-html",{createHTML:t=>t}):void 0,C="$lit$",M=`lit$${Math.random().toFixed(9).slice(2)}$`,S="?"+M,P=`<${S}>`,E=document,I=()=>E.createComment(""),T=t=>null===t||"object"!=typeof t&&"function"!=typeof t,H=Array.isArray,O="[ \t\n\f\r]",B=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,j=/-->/g,D=/>/g,R=RegExp(`>|${O}(?:([^\\s"'>=/]+)(${O}*=${O}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),U=/'/g,N=/"/g,L=/^(?:script|style|textarea|title)$/i,V=t=>(e,...i)=>({_$litType$:t,strings:e,values:i}),F=V(1),W=V(2),q=Symbol.for("lit-noChange"),G=Symbol.for("lit-nothing"),K=new WeakMap,Z=E.createTreeWalker(E,129);function J(t,e){if(!H(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==A?A.createHTML(e):e}const X=(t,e)=>{const i=t.length-1,s=[];let r,o=2===e?"<svg>":3===e?"<math>":"",a=B;for(let e=0;e<i;e++){const i=t[e];let n,l,d=-1,c=0;for(;c<i.length&&(a.lastIndex=c,l=a.exec(i),null!==l);)c=a.lastIndex,a===B?"!--"===l[1]?a=j:void 0!==l[1]?a=D:void 0!==l[2]?(L.test(l[2])&&(r=RegExp("</"+l[2],"g")),a=R):void 0!==l[3]&&(a=R):a===R?">"===l[0]?(a=r??B,d=-1):void 0===l[1]?d=-2:(d=a.lastIndex-l[2].length,n=l[1],a=void 0===l[3]?R:'"'===l[3]?N:U):a===N||a===U?a=R:a===j||a===D?a=B:(a=R,r=void 0);const p=a===R&&t[e+1].startsWith("/>")?" ":"";o+=a===B?i+P:d>=0?(s.push(n),i.slice(0,d)+C+i.slice(d)+M+p):i+M+(-2===d?e:p)}return[J(t,o+(t[i]||"<?>")+(2===e?"</svg>":3===e?"</math>":"")),s]};class Y{constructor({strings:t,_$litType$:e},i){let s;this.parts=[];let r=0,o=0;const a=t.length-1,n=this.parts,[l,d]=X(t,e);if(this.el=Y.createElement(l,i),Z.currentNode=this.el.content,2===e||3===e){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes)}for(;null!==(s=Z.nextNode())&&n.length<a;){if(1===s.nodeType){if(s.hasAttributes())for(const t of s.getAttributeNames())if(t.endsWith(C)){const e=d[o++],i=s.getAttribute(t).split(M),a=/([.?@])?(.*)/.exec(e);n.push({type:1,index:r,name:a[2],strings:i,ctor:"."===a[1]?st:"?"===a[1]?rt:"@"===a[1]?ot:it}),s.removeAttribute(t)}else t.startsWith(M)&&(n.push({type:6,index:r}),s.removeAttribute(t));if(L.test(s.tagName)){const t=s.textContent.split(M),e=t.length-1;if(e>0){s.textContent=z?z.emptyScript:"";for(let i=0;i<e;i++)s.append(t[i],I()),Z.nextNode(),n.push({type:2,index:++r});s.append(t[e],I())}}}else if(8===s.nodeType)if(s.data===S)n.push({type:2,index:r});else{let t=-1;for(;-1!==(t=s.data.indexOf(M,t+1));)n.push({type:7,index:r}),t+=M.length-1}r++}}static createElement(t,e){const i=E.createElement("template");return i.innerHTML=t,i}}function Q(t,e,i=t,s){if(e===q)return e;let r=void 0!==s?i._$Co?.[s]:i._$Cl;const o=T(e)?void 0:e._$litDirective$;return r?.constructor!==o&&(r?._$AO?.(!1),void 0===o?r=void 0:(r=new o(t),r._$AT(t,i,s)),void 0!==s?(i._$Co??=[])[s]=r:i._$Cl=r),void 0!==r&&(e=Q(t,r._$AS(t,e.values),r,s)),e}class tt{constructor(t,e){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:e},parts:i}=this._$AD,s=(t?.creationScope??E).importNode(e,!0);Z.currentNode=s;let r=Z.nextNode(),o=0,a=0,n=i[0];for(;void 0!==n;){if(o===n.index){let e;2===n.type?e=new et(r,r.nextSibling,this,t):1===n.type?e=new n.ctor(r,n.name,n.strings,this,t):6===n.type&&(e=new at(r,this,t)),this._$AV.push(e),n=i[++a]}o!==n?.index&&(r=Z.nextNode(),o++)}return Z.currentNode=E,s}p(t){let e=0;for(const i of this._$AV)void 0!==i&&(void 0!==i.strings?(i._$AI(t,i,e),e+=i.strings.length-2):i._$AI(t[e])),e++}}class et{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,e,i,s){this.type=2,this._$AH=G,this._$AN=void 0,this._$AA=t,this._$AB=e,this._$AM=i,this.options=s,this._$Cv=s?.isConnected??!0}get parentNode(){let t=this._$AA.parentNode;const e=this._$AM;return void 0!==e&&11===t?.nodeType&&(t=e.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,e=this){t=Q(this,t,e),T(t)?t===G||null==t||""===t?(this._$AH!==G&&this._$AR(),this._$AH=G):t!==this._$AH&&t!==q&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):(t=>H(t)||"function"==typeof t?.[Symbol.iterator])(t)?this.k(t):this._(t)}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}_(t){this._$AH!==G&&T(this._$AH)?this._$AA.nextSibling.data=t:this.T(E.createTextNode(t)),this._$AH=t}$(t){const{values:e,_$litType$:i}=t,s="number"==typeof i?this._$AC(t):(void 0===i.el&&(i.el=Y.createElement(J(i.h,i.h[0]),this.options)),i);if(this._$AH?._$AD===s)this._$AH.p(e);else{const t=new tt(s,this),i=t.u(this.options);t.p(e),this.T(i),this._$AH=t}}_$AC(t){let e=K.get(t.strings);return void 0===e&&K.set(t.strings,e=new Y(t)),e}k(t){H(this._$AH)||(this._$AH=[],this._$AR());const e=this._$AH;let i,s=0;for(const r of t)s===e.length?e.push(i=new et(this.O(I()),this.O(I()),this,this.options)):i=e[s],i._$AI(r),s++;s<e.length&&(this._$AR(i&&i._$AB.nextSibling,s),e.length=s)}_$AR(t=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);t!==this._$AB;){const e=w(t).nextSibling;w(t).remove(),t=e}}setConnected(t){void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t))}}class it{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,e,i,s,r){this.type=1,this._$AH=G,this._$AN=void 0,this.element=t,this.name=e,this._$AM=s,this.options=r,i.length>2||""!==i[0]||""!==i[1]?(this._$AH=Array(i.length-1).fill(new String),this.strings=i):this._$AH=G}_$AI(t,e=this,i,s){const r=this.strings;let o=!1;if(void 0===r)t=Q(this,t,e,0),o=!T(t)||t!==this._$AH&&t!==q,o&&(this._$AH=t);else{const s=t;let a,n;for(t=r[0],a=0;a<r.length-1;a++)n=Q(this,s[i+a],e,a),n===q&&(n=this._$AH[a]),o||=!T(n)||n!==this._$AH[a],n===G?t=G:t!==G&&(t+=(n??"")+r[a+1]),this._$AH[a]=n}o&&!s&&this.j(t)}j(t){t===G?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"")}}class st extends it{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===G?void 0:t}}class rt extends it{constructor(){super(...arguments),this.type=4}j(t){this.element.toggleAttribute(this.name,!!t&&t!==G)}}class ot extends it{constructor(t,e,i,s,r){super(t,e,i,s,r),this.type=5}_$AI(t,e=this){if((t=Q(this,t,e,0)??G)===q)return;const i=this._$AH,s=t===G&&i!==G||t.capture!==i.capture||t.once!==i.once||t.passive!==i.passive,r=t!==G&&(i===G||s);s&&this.element.removeEventListener(this.name,this,i),r&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t)}}class at{constructor(t,e,i){this.element=t,this.type=6,this._$AN=void 0,this._$AM=e,this.options=i}get _$AU(){return this._$AM._$AU}_$AI(t){Q(this,t)}}const nt=$.litHtmlPolyfillSupport;nt?.(Y,et),($.litHtmlVersions??=[]).push("3.3.3");const lt=globalThis;class dt extends y{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=((t,e,i)=>{const s=i?.renderBefore??e;let r=s._$litPart$;if(void 0===r){const t=i?.renderBefore??null;s._$litPart$=r=new et(e.insertBefore(I(),t),t,void 0,i??{})}return r._$AI(t),r})(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return q}}dt._$litElement$=!0,dt.finalized=!0,lt.litElementHydrateSupport?.({LitElement:dt});const ct=lt.litElementPolyfillSupport;ct?.({LitElement:dt}),(lt.litElementVersions??=[]).push("4.2.2");const pt=t=>(e,i)=>{void 0!==i?i.addInitializer(()=>{customElements.define(t,e)}):customElements.define(t,e)},ht={attribute:!0,type:String,converter:b,reflect:!1,hasChanged:_},vt=(t=ht,e,i)=>{const{kind:s,metadata:r}=i;let o=globalThis.litPropertyMetadata.get(r);if(void 0===o&&globalThis.litPropertyMetadata.set(r,o=new Map),"setter"===s&&((t=Object.create(t)).wrapped=!0),o.set(i.name,t),"accessor"===s){const{name:s}=i;return{set(i){const r=e.get.call(this);e.set.call(this,i),this.requestUpdate(s,r,t,!0,i)},init(e){return void 0!==e&&this.C(s,void 0,t,e),e}}}if("setter"===s){const{name:s}=i;return function(i){const r=this[s];e.call(this,i),this.requestUpdate(s,r,t,!0,i)}}throw Error("Unsupported decorator location: "+s)};function gt(t){return(e,i)=>"object"==typeof i?vt(t,e,i):((t,e,i)=>{const s=e.hasOwnProperty(i);return e.constructor.createProperty(i,t),s?Object.getOwnPropertyDescriptor(e,i):void 0})(t,e,i)}function ut(t){return gt({...t,state:!0,attribute:!1})}const mt=a`
   :host {
     display: block;
     height: 100%;
@@ -447,7 +447,7 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
     .grid-auto { grid-template-columns: 1fr !important; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
   }
-`;function bt(t,e=16,i=1.6){const r=e,s=i;switch(t){case"dashboard":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`;case"dumbbell":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6 12h12"/><rect x="2" y="8" width="4" height="8" rx="1"/><rect x="18" y="8" width="4" height="8" rx="1"/><rect x="5" y="6" width="2" height="12" rx="0.5"/><rect x="17" y="6" width="2" height="12" rx="0.5"/></svg>`;case"scale":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="12" cy="12" r="4"/><path d="M12 8v4l2.5 1.5"/></svg>`;case"calendar":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>`;case"user":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>`;case"target":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>`;case"chart":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V10l4-3 4 5 4-7 4 4v11"/></svg>`;case"sliders":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>`;case"settings":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;case"sword":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="M13 19l6-6M16 16l4 4M9 5l1-1"/></svg>`;case"flame":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-5 4-7 5-11z"/><path d="M12 18a2 2 0 0 1-2-2c0-2 2-3 2-5 0 2 2 3 2 5a2 2 0 0 1-2 2z"/></svg>`;case"trophy":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V4h12v5a6 6 0 0 1-12 0z"/><path d="M6 6H3v3a3 3 0 0 0 3 3M18 6h3v3a3 3 0 0 1-3 3M9 19h6M12 15v4M8 21h8"/></svg>`;case"heart":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 3 14 3 8.5a4.5 4.5 0 0 1 9-1 4.5 4.5 0 0 1 9 1C21 14 12 21 12 21z"/></svg>`;case"bolt":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg>`;case"shield":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v5c0 5 3.5 8 8 10 4.5-2 8-5 8-10V7z"/></svg>`;case"medal":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="5"/><path d="M8.2 13 6 3h3l3 4 3-4h3l-2.2 10"/></svg>`;case"run":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="4" r="2"/><path d="M6 20l3-7 2 2 4-4 2 6"/><path d="M9 13l-3-3 5-2"/></svg>`;case"check":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>`;case"close":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`;case"menu":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`;case"chevron-right":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>`;case"info":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>`;case"clock":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;case"plus":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`;case"play":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16l14-8z" fill="currentColor" stroke="none"/></svg>`;case"pause":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14" fill="currentColor" stroke="none"/><rect x="14" y="5" width="4" height="14" fill="currentColor" stroke="none"/></svg>`;case"weight":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M5 21h14l-2-14H7z"/></svg>`;case"droplet":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/></svg>`;case"trending-up":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>`;case"trending-down":return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"><path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/></svg>`;default:return F`<svg width="${r}" height="${r}" viewBox="0 0 24 24"></svg>`}}const ft="monitor_allenamenti";function _t(t,e){const i=`sensor.${ft}_${e}`;return t.states[i]?.state??""}function kt(t,e=0){const i="string"==typeof t?parseFloat(t):t;return isNaN(i)?"—":i.toLocaleString("it-IT",{minimumFractionDigits:e,maximumFractionDigits:e})}function yt(t,e=""){return`${t>0?"+":""}${kt(t,1)}${e?" "+e:""}`}function $t(t,e,i){if(t.length<2)return"";const r=Math.min(...t),s=Math.max(...t)-r||1,o=e/(t.length-1);return t.map((t,e)=>{const a=i-(t-r)/s*i;return`${0===e?"M":"L"}${(e*o).toFixed(1)},${a.toFixed(1)}`}).join(" ")}const wt=[{date:"Oggi",type:"Pesi",duration:52,calories:320,extra:"4.200 kg vol"},{date:"Ieri",type:"Corsa",duration:35,calories:380,extra:"5,2 km"},{date:"12 mag",type:"Pesi",duration:48,calories:290,extra:"3.800 kg vol"},{date:"11 mag",type:"Cammino",duration:45,calories:210,extra:"4,1 km"},{date:"10 mag",type:"HIIT",duration:25,calories:350,extra:""}],Ct=[80.1,79.8,79.6,79.4,79.2,79,78.8,78.9,78.7,78.6,78.5,78.4];let At=class extends dt{render(){const t=this.card.hass,e=_t(t,"peso")||(t.states["sensor.weight"]?.state??"78,4"),i=_t(t,"allenamenti_mese")||"14",r=_t(t,"punti")||"2.840",s=_t(t,"streak")||"12",o=$t(Ct,160,36);return W`
+`;function ft(t,e=16,i=1.6){const s=e,r=i;switch(t){case"dashboard":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`;case"dumbbell":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6 12h12"/><rect x="2" y="8" width="4" height="8" rx="1"/><rect x="18" y="8" width="4" height="8" rx="1"/><rect x="5" y="6" width="2" height="12" rx="0.5"/><rect x="17" y="6" width="2" height="12" rx="0.5"/></svg>`;case"scale":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="12" cy="12" r="4"/><path d="M12 8v4l2.5 1.5"/></svg>`;case"calendar":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>`;case"user":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>`;case"target":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>`;case"chart":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V10l4-3 4 5 4-7 4 4v11"/></svg>`;case"sliders":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>`;case"settings":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;case"sword":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="M13 19l6-6M16 16l4 4M9 5l1-1"/></svg>`;case"flame":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-5 4-7 5-11z"/><path d="M12 18a2 2 0 0 1-2-2c0-2 2-3 2-5 0 2 2 3 2 5a2 2 0 0 1-2 2z"/></svg>`;case"trophy":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V4h12v5a6 6 0 0 1-12 0z"/><path d="M6 6H3v3a3 3 0 0 0 3 3M18 6h3v3a3 3 0 0 1-3 3M9 19h6M12 15v4M8 21h8"/></svg>`;case"heart":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 3 14 3 8.5a4.5 4.5 0 0 1 9-1 4.5 4.5 0 0 1 9 1C21 14 12 21 12 21z"/></svg>`;case"bolt":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg>`;case"shield":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v5c0 5 3.5 8 8 10 4.5-2 8-5 8-10V7z"/></svg>`;case"medal":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="5"/><path d="M8.2 13 6 3h3l3 4 3-4h3l-2.2 10"/></svg>`;case"run":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="4" r="2"/><path d="M6 20l3-7 2 2 4-4 2 6"/><path d="M9 13l-3-3 5-2"/></svg>`;case"check":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>`;case"close":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`;case"menu":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`;case"chevron-right":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>`;case"info":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>`;case"clock":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;case"plus":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`;case"play":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16l14-8z" fill="currentColor" stroke="none"/></svg>`;case"pause":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14" fill="currentColor" stroke="none"/><rect x="14" y="5" width="4" height="14" fill="currentColor" stroke="none"/></svg>`;case"weight":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M5 21h14l-2-14H7z"/></svg>`;case"droplet":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/></svg>`;case"trending-up":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>`;case"trending-down":return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${r}" stroke-linecap="round" stroke-linejoin="round"><path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/></svg>`;default:return W`<svg width="${s}" height="${s}" viewBox="0 0 24 24"></svg>`}}const bt="monitor_allenamenti";function _t(t,e){const i=`sensor.${bt}_${e}`;return t.states[i]?.state??""}function kt(t,e=0){const i="string"==typeof t?parseFloat(t):t;return isNaN(i)?"—":i.toLocaleString("it-IT",{minimumFractionDigits:e,maximumFractionDigits:e})}function yt(t,e=""){return`${t>0?"+":""}${kt(t,1)}${e?" "+e:""}`}function $t(t,e,i){if(t.length<2)return"";const s=Math.min(...t),r=Math.max(...t)-s||1,o=e/(t.length-1);return t.map((t,e)=>{const a=i-(t-s)/r*i;return`${0===e?"M":"L"}${(e*o).toFixed(1)},${a.toFixed(1)}`}).join(" ")}const wt=[{date:"Oggi",type:"Pesi",duration:52,calories:320,extra:"4.200 kg vol"},{date:"Ieri",type:"Corsa",duration:35,calories:380,extra:"5,2 km"},{date:"12 mag",type:"Pesi",duration:48,calories:290,extra:"3.800 kg vol"},{date:"11 mag",type:"Cammino",duration:45,calories:210,extra:"4,1 km"},{date:"10 mag",type:"HIIT",duration:25,calories:350,extra:""}],zt=[80.1,79.8,79.6,79.4,79.2,79,78.8,78.9,78.7,78.6,78.5,78.4];let At=class extends dt{render(){const t=this.card.hass,e=t.states["sensor.withings_peso"]?.state??_t(t,"peso")??"—",i=_t(t,"allenamenti_mese")||"14",s=_t(t,"punti")||"2.840",r=_t(t,"streak")||"12";t.states["sensor.withings_passi_oggi"],t.states["sensor.withings_calorie_attive_bruciate_oggi"];const o=$t(zt,160,36);return F`
       <div class="col" style="gap:22px">
 
         <!-- Header -->
@@ -470,12 +470,12 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           </div>
           <div class="kpi">
             <div class="kpi__label">Punti</div>
-            <div class="kpi__value">${r}</div>
+            <div class="kpi__value">${s}</div>
             <div class="kpi__delta">totali</div>
           </div>
           <div class="kpi">
             <div class="kpi__label">Streak</div>
-            <div class="kpi__value" style="color:var(--streak)">${s}<span class="text-mute" style="font-size:14px;margin-left:4px">giorni</span></div>
+            <div class="kpi__value" style="color:var(--streak)">${r}<span class="text-mute" style="font-size:14px;margin-left:4px">giorni</span></div>
             <div class="kpi__delta">consecutivi</div>
           </div>
         </div>
@@ -484,10 +484,10 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         <div>
           <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Ultimi allenamenti</h2>
           <div class="card">
-            ${wt.map(t=>W`
+            ${wt.map(t=>F`
                 <div class="stat-row">
                   <div class="stat-row__icon">
-                    ${bt(function(t){switch(t){case"Pesi":default:return"dumbbell";case"Corsa":return"run";case"Cammino":return"heart";case"HIIT":return"flame"}}(t.type),17)}
+                    ${ft(function(t){switch(t){case"Pesi":default:return"dumbbell";case"Corsa":return"run";case"Cammino":return"heart";case"HIIT":return"flame"}}(t.type),17)}
                   </div>
                   <div class="stat-row__main">
                     <div class="stat-row__name">${t.type}</div>
@@ -520,15 +520,15 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         <!-- Azioni -->
         <div class="row" style="flex-wrap:wrap;gap:10px">
           <button class="btn btn--primary" @click=${()=>this.card.navigate("workouts")}>
-            ${bt("dumbbell",14)} Registra allenamento
+            ${ft("dumbbell",14)} Registra allenamento
           </button>
           <button class="btn btn--ghost" @click=${()=>this.card.navigate("body")}>
-            ${bt("scale",14)} Vedi composizione
+            ${ft("scale",14)} Vedi composizione
           </button>
         </div>
 
       </div>
-    `}};At.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],At.prototype,"card",void 0),At=t([pt("monitor-overview")],At);const zt=[{date:"2026-05-15",dateShort:"Gio 15 mag",type:"Pesi",duration:52,calories:320,metric:"4.200 kg",points:40},{date:"2026-05-14",dateShort:"Mer 14 mag",type:"Corsa",duration:35,calories:380,metric:"5,2 km",points:30},{date:"2026-05-13",dateShort:"Mar 13 mag",type:"Pesi",duration:48,calories:290,metric:"3.800 kg",points:40},{date:"2026-05-12",dateShort:"Lun 12 mag",type:"Cammino",duration:45,calories:210,metric:"4,1 km",points:20},{date:"2026-05-11",dateShort:"Dom 11 mag",type:"HIIT",duration:25,calories:350,metric:"Zona 4",points:35},{date:"2026-05-10",dateShort:"Sab 10 mag",type:"Pesi",duration:55,calories:340,metric:"4.500 kg",points:40},{date:"2026-05-09",dateShort:"Ven 9 mag",type:"Corsa",duration:40,calories:410,metric:"6,1 km",points:30},{date:"2026-05-08",dateShort:"Gio 8 mag",type:"Pesi",duration:50,calories:310,metric:"4.100 kg",points:40},{date:"2026-05-06",dateShort:"Mar 6 mag",type:"Corsa",duration:30,calories:320,metric:"4,8 km",points:30},{date:"2026-05-05",dateShort:"Lun 5 mag",type:"Pesi",duration:45,calories:280,metric:"3.600 kg",points:40}],Mt=[{key:"all",label:"Tutti"},{key:"Pesi",label:"Pesi"},{key:"Corsa",label:"Corsa"},{key:"Cammino",label:"Cammino"},{key:"HIIT",label:"HIIT"}];let St=class extends dt{constructor(){super(...arguments),this._filter="all"}get _filteredWorkouts(){return"all"===this._filter?zt:zt.filter(t=>t.type===this._filter)}render(){const t=this._filteredWorkouts;return W`
+    `}};At.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],At.prototype,"card",void 0),At=t([pt("monitor-overview")],At);const Ct=[{date:"2026-05-15",dateShort:"Gio 15 mag",type:"Pesi",duration:52,calories:320,metric:"4.200 kg",points:40},{date:"2026-05-14",dateShort:"Mer 14 mag",type:"Corsa",duration:35,calories:380,metric:"5,2 km",points:30},{date:"2026-05-13",dateShort:"Mar 13 mag",type:"Pesi",duration:48,calories:290,metric:"3.800 kg",points:40},{date:"2026-05-12",dateShort:"Lun 12 mag",type:"Cammino",duration:45,calories:210,metric:"4,1 km",points:20},{date:"2026-05-11",dateShort:"Dom 11 mag",type:"HIIT",duration:25,calories:350,metric:"Zona 4",points:35},{date:"2026-05-10",dateShort:"Sab 10 mag",type:"Pesi",duration:55,calories:340,metric:"4.500 kg",points:40},{date:"2026-05-09",dateShort:"Ven 9 mag",type:"Corsa",duration:40,calories:410,metric:"6,1 km",points:30},{date:"2026-05-08",dateShort:"Gio 8 mag",type:"Pesi",duration:50,calories:310,metric:"4.100 kg",points:40},{date:"2026-05-06",dateShort:"Mar 6 mag",type:"Corsa",duration:30,calories:320,metric:"4,8 km",points:30},{date:"2026-05-05",dateShort:"Lun 5 mag",type:"Pesi",duration:45,calories:280,metric:"3.600 kg",points:40}],Mt=[{key:"all",label:"Tutti"},{key:"Pesi",label:"Pesi"},{key:"Corsa",label:"Corsa"},{key:"Cammino",label:"Cammino"},{key:"HIIT",label:"HIIT"}];let St=class extends dt{constructor(){super(...arguments),this._filter="all"}get _filteredWorkouts(){return"all"===this._filter?Ct:Ct.filter(t=>t.type===this._filter)}render(){const t=this._filteredWorkouts;return F`
       <div class="col" style="gap:22px">
 
         <!-- Header -->
@@ -538,13 +538,13 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
             <p class="page-sub">Importati da Apple Health</p>
           </div>
           <button class="btn btn--primary" @click=${()=>console.log("[monitor] Registra manualmente")}>
-            ${bt("plus",14)} Registra manualmente
+            ${ft("plus",14)} Registra manualmente
           </button>
         </div>
 
         <!-- Filter segmented control -->
         <div class="segmented">
-          ${Mt.map(t=>W`
+          ${Mt.map(t=>F`
               <button
                 data-active="${this._filter===t.key}"
                 @click=${()=>{this._filter=t.key}}
@@ -573,19 +573,19 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Registro</h2>
           <div class="col" style="gap:12px">
             ${t.map(t=>this._renderWorkoutCard(t))}
-            ${0===t.length?W`<div class="card card--ghost" style="text-align:center;padding:28px;color:var(--text-muted)">
+            ${0===t.length?F`<div class="card card--ghost" style="text-align:center;padding:28px;color:var(--text-muted)">
                   Nessun allenamento con questo filtro
                 </div>`:""}
           </div>
         </div>
 
       </div>
-    `}_renderWorkoutCard(t){return W`
+    `}_renderWorkoutCard(t){return F`
       <div class="card">
         <!-- Header row -->
         <div class="sp-between" style="margin-bottom:10px">
           <div class="row">
-            ${bt(function(t){switch(t){case"Pesi":default:return"dumbbell";case"Corsa":return"run";case"Cammino":return"heart";case"HIIT":return"flame"}}(t.type),16)}
+            ${ft(function(t){switch(t){case"Pesi":default:return"dumbbell";case"Corsa":return"run";case"Cammino":return"heart";case"HIIT":return"flame"}}(t.type),16)}
             <span class="chip ${function(t){switch(t){case"Pesi":return"chip--accent";case"Corsa":return"chip--ok";case"Cammino":return"chip--warn";case"HIIT":return"chip--danger";default:return""}}(t.type)}">${t.type}</span>
             <span class="text-sm fw-600">${t.dateShort}</span>
           </div>
@@ -596,23 +596,21 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         </div>
         <!-- Stats row -->
         <div class="row" style="gap:16px">
-          <span class="mono text-sm">${bt("clock",13)} ${t.duration} min</span>
-          <span class="mono text-sm">${bt("flame",13)} ${kt(t.calories)} kcal</span>
+          <span class="mono text-sm">${ft("clock",13)} ${t.duration} min</span>
+          <span class="mono text-sm">${ft("flame",13)} ${kt(t.calories)} kcal</span>
           <span class="mono text-sm">${t.metric}</span>
         </div>
       </div>
-    `}};St.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],St.prototype,"card",void 0),t([ut()],St.prototype,"_filter",void 0),St=t([pt("monitor-workouts")],St);const Pt=["7G","30G","3M","6M","1A"],Et=[80.2,79.8,79.9,79.5,79.1,79.3,78.9,78.7,79,78.6,78.8,78.4,78.5,78.2,78.4,78.1,78.3,78,78.2,77.9,78.1,77.8,78,77.7,77.9,78.1,78,77.8,78.2,78.4];let Ht=class extends dt{constructor(){super(...arguments),this._range="30G"}render(){const t=this.card.hass,e=parseFloat(_t(t,"peso")||t.states["sensor.weight"]?.state||"78.4"),i=parseFloat(t.states["sensor.fat_ratio"]?.state||"18.2"),r=parseFloat(t.states["sensor.muscle_mass_kg"]?.state||"35.1"),s=parseFloat(t.states["sensor.body_water"]?.state||"55.8"),o=parseFloat(t.states["sensor.bone_mass_kg"]?.state||"3.4"),a=parseFloat(t.states["sensor.bmi"]?.state||"24.1"),n=140,l=$t(Et,460,n),d=[{label:"Peso",value:`${kt(e,1)} kg`,delta:yt(-2,"in 30g"),iconName:"weight"},{label:"Grasso",value:`${kt(i,1)}%`,delta:yt(-.8,"in 30g"),iconName:"flame"},{label:"Muscolo",value:`${kt(r,1)} kg`,delta:yt(.3,"in 30g"),iconName:"dumbbell"},{label:"Acqua",value:`${kt(s,1)}%`,delta:yt(.5,"in 30g"),iconName:"droplet"},{label:"Ossa",value:`${kt(o,1)} kg`,delta:"stabile",iconName:"shield"},{label:"HR Riposo",value:"58 bpm",delta:yt(-2,"in 30g"),iconName:"heart"},{label:"Età Vasc.",value:"32 anni",delta:yt(-1,"in 6m"),iconName:"trending-down"},{label:"BMI",value:kt(a,1),delta:yt(-.6,"in 30g"),iconName:"chart"}];return W`
+    `}};St.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],St.prototype,"card",void 0),t([ut()],St.prototype,"_filter",void 0),St=t([pt("monitor-workouts")],St);const Pt=["7G","30G","3M","6M","1A"],Et=[116.2,115.8,115.9,115.5,115.1,115.3,114.9,114.7,115,114.6,114.8,114.4,114.5,114.2,114.4,114.1,114.3,114,114.2,113.9,114.1,113.8,114,113.7,113.9,114.1,114,113.8,114.2,114.5];function It(t,e){const i=t.states[e];return i&&"unknown"!==i.state&&"unavailable"!==i.state?i.state:null}let Tt=class extends dt{constructor(){super(...arguments),this._range="30G"}render(){const t=this.card.hass,e=parseFloat(It(t,"sensor.withings_peso")||"0"),i=parseFloat(It(t,"sensor.withings_altezza")||"0"),s=parseFloat(It(t,"sensor.withings_obiettivo_di_peso")||"0"),r=parseFloat(It(t,"sensor.withings_passi_oggi")||"0"),o=parseFloat(It(t,"sensor.withings_calorie_attive_bruciate_oggi")||"0"),a=parseFloat(It(t,"sensor.withings_calorie_totali_bruciate_oggi")||"0"),n=parseFloat(It(t,"sensor.withings_distanza_percorsa_oggi")||"0"),l=parseFloat(It(t,"sensor.withings_attivita_intensa_oggi")||"0"),d=parseFloat(It(t,"sensor.withings_attivita_moderata_oggi")||"0"),c=parseFloat(It(t,"sensor.withings_attivita_leggera_oggi")||"0"),p=parseFloat(It(t,"sensor.withings_variazione_dell_elevazione_oggi")||"0"),h=i>0?e/(i*i):0,v=e-s,g=n/1e3,u=140,m=$t(Et,460,u);return F`
       <div class="col" style="gap:22px">
 
-        <!-- Header -->
         <div>
           <h1 class="page-title">Composizione</h1>
-          <p class="page-sub">${kt(e,1)} kg · ${yt(-2)} kg in 30 giorni</p>
+          <p class="page-sub">${kt(e,1)} kg · obiettivo ${kt(s,0)} kg (${yt(v,"kg")})</p>
         </div>
 
-        <!-- Time range segmented -->
         <div class="segmented">
-          ${Pt.map(t=>W`
+          ${Pt.map(t=>F`
             <button data-active="${this._range===t}"
               @click=${()=>{this._range=t}}>
               ${t}
@@ -620,13 +618,13 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           `)}
         </div>
 
-        <!-- Sparkline chart -->
+        <!-- Weight chart -->
         <div class="card" style="padding:20px">
           <div class="card__header">
             <h3 class="card__title">Andamento peso</h3>
             <span class="chip chip--accent">${this._range}</span>
           </div>
-          <svg class="sparkline" viewBox="0 0 ${460} ${n}" width="100%" height="200"
+          <svg class="sparkline" viewBox="0 0 ${460} ${u}" width="100%" height="200"
             preserveAspectRatio="none" style="display:block">
             <defs>
               <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
@@ -634,51 +632,79 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
                 <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
               </linearGradient>
             </defs>
-            <path d="${l} L${460},${n} L0,${n} Z" fill="url(#wg)"/>
-            <polyline points="${l.replace(/[ML]/g,"")}" stroke="var(--accent)"/>
+            <path d="${m} L${460},${u} L0,${u} Z" fill="url(#wg)"/>
+            <polyline points="${m.replace(/[ML]/g,"")}" stroke="var(--accent)"/>
           </svg>
         </div>
 
-        <!-- KPI grid 4x2 -->
+        <!-- Peso & BMI -->
         <div class="grid-4" style="grid-template-columns:repeat(4, 1fr)">
-          ${d.map(t=>W`
-            <div class="kpi">
-              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
-                ${bt(t.iconName,12)} ${t.label}
-              </div>
-              <div class="kpi__value" style="font-size:22px">${t.value}</div>
-              <div class="kpi__delta">${t.delta}</div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${ft("weight",12)} Peso
             </div>
-          `)}
+            <div class="kpi__value" style="font-size:22px">${kt(e,1)} kg</div>
+            <div class="kpi__delta">attuale</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${ft("target",12)} Obiettivo
+            </div>
+            <div class="kpi__value" style="font-size:22px">${kt(s,0)} kg</div>
+            <div class="kpi__delta" style="color:${v>0?"var(--warn)":"var(--ok)"}">${yt(v,"kg")}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${ft("chart",12)} BMI
+            </div>
+            <div class="kpi__value" style="font-size:22px">${kt(h,1)}</div>
+            <div class="kpi__delta">${i>0?`${kt(100*i,0)} cm`:"—"}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${ft("trending-down",12)} Da obiettivo
+            </div>
+            <div class="kpi__value" style="font-size:22px;color:${v>0?"var(--warn)":"var(--ok)"}">${kt(Math.abs(v),1)} kg</div>
+            <div class="kpi__delta">${v>0?"da perdere":"raggiunto"}</div>
+          </div>
         </div>
 
-        <!-- Previsione -->
-        <div class="card">
-          <div class="card__header">
-            <div style="color:var(--accent)">${bt("target",18)}</div>
-            <div>
-              <h3 class="card__title">Previsione</h3>
-              <div class="card__sub">Basata sul trend ${this._range}</div>
+        <!-- Attività giornaliera -->
+        <div>
+          <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Attività oggi</h2>
+          <div class="grid-4" style="grid-template-columns:repeat(4, 1fr)">
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${ft("run",12)} Passi
+              </div>
+              <div class="kpi__value" style="font-size:22px">${kt(r,0)}</div>
             </div>
-          </div>
-          <div class="row" style="gap:24px;padding:8px 0">
-            <div>
-              <div class="text-mute text-xs" style="margin-bottom:4px">Peso previsto (90g)</div>
-              <div class="mono fw-700" style="font-size:22px">${kt(76.8,1)} kg</div>
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${ft("flame",12)} Cal. attive
+              </div>
+              <div class="kpi__value" style="font-size:22px">${kt(o,0)}</div>
+              <div class="kpi__delta">${kt(a,0)} totali</div>
             </div>
-            <div>
-              <div class="text-mute text-xs" style="margin-bottom:4px">Intervallo</div>
-              <div class="mono fw-600" style="font-size:15px;color:var(--text-soft)">${kt(75.8,1)} – ${kt(77.8,1)} kg</div>
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${ft("heart",12)} Distanza
+              </div>
+              <div class="kpi__value" style="font-size:22px">${kt(g,1)} km</div>
+              <div class="kpi__delta">${kt(p,0)} m dislivello</div>
             </div>
-            <div>
-              <div class="text-mute text-xs" style="margin-bottom:4px">Obiettivo</div>
-              <div class="mono fw-600" style="font-size:15px;color:var(--ok)">${kt(75,1)} kg</div>
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${ft("clock",12)} Attività
+              </div>
+              <div class="kpi__value" style="font-size:22px">${kt(l+d,0)} min</div>
+              <div class="kpi__delta">${kt(c,0)} min leggera</div>
             </div>
           </div>
         </div>
 
       </div>
-    `}};Ht.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Ht.prototype,"card",void 0),t([ut()],Ht.prototype,"_range",void 0),Ht=t([pt("monitor-body")],Ht);const It=["var(--bg-sunken)","color-mix(in srgb, var(--accent) 25%, var(--bg-sunken))","color-mix(in srgb, var(--accent) 50%, var(--bg-sunken))","color-mix(in srgb, var(--accent) 75%, var(--bg-sunken))","var(--accent)"];let Tt=class extends dt{render(){const t=this.card.hass,e=parseInt(_t(t,"streak")||"12",10),i=new Date,r=i.toLocaleDateString("it-IT",{month:"long",year:"numeric"}),s=function(t,e){const i=new Date(t,e,1),r=new Date(t,e+1,0).getDate(),s=(i.getDay()+6)%7,o=[];let a=[];for(let t=0;t<s;t++)a.push({day:0,intensity:-1});for(let t=1;t<=r;t++){const e=t%3==0?0:t%7==0?4:t%5==0?3:t%2==0?2:1;a.push({day:t,intensity:t>(new Date).getDate()?-1:e}),7===a.length&&(o.push(a),a=[])}if(a.length>0){for(;a.length<7;)a.push({day:0,intensity:-1});o.push(a)}return o}(i.getFullYear(),i.getMonth());return W`
+    `}};Tt.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Tt.prototype,"card",void 0),t([ut()],Tt.prototype,"_range",void 0),Tt=t([pt("monitor-body")],Tt);const Ht=["var(--bg-sunken)","color-mix(in srgb, var(--accent) 25%, var(--bg-sunken))","color-mix(in srgb, var(--accent) 50%, var(--bg-sunken))","color-mix(in srgb, var(--accent) 75%, var(--bg-sunken))","var(--accent)"];let Ot=class extends dt{render(){const t=this.card.hass,e=parseInt(_t(t,"streak")||"12",10),i=new Date,s=i.toLocaleDateString("it-IT",{month:"long",year:"numeric"}),r=function(t,e){const i=new Date(t,e,1),s=new Date(t,e+1,0).getDate(),r=(i.getDay()+6)%7,o=[];let a=[];for(let t=0;t<r;t++)a.push({day:0,intensity:-1});for(let t=1;t<=s;t++){const e=t%3==0?0:t%7==0?4:t%5==0?3:t%2==0?2:1;a.push({day:t,intensity:t>(new Date).getDate()?-1:e}),7===a.length&&(o.push(a),a=[])}if(a.length>0){for(;a.length<7;)a.push({day:0,intensity:-1});o.push(a)}return o}(i.getFullYear(),i.getMonth());return F`
       <div class="col" style="gap:22px">
 
         <!-- Header -->
@@ -691,11 +717,11 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         <div class="card">
           <div class="row" style="gap:24px;flex-wrap:wrap;align-items:flex-start">
             <div class="ring-wrap" style="flex-shrink:0">
-              ${function(t,e){const i=Math.min(1,t/e),r=2*Math.PI*40;return F`
+              ${function(t,e){const i=Math.min(1,t/e),s=2*Math.PI*40;return W`
     <svg width="100" height="100" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="${40}" fill="none" stroke="var(--bg-sunken)" stroke-width="8"/>
       <circle cx="50" cy="50" r="${40}" fill="none" stroke="var(--streak)" stroke-width="8"
-        stroke-dasharray="${r*i} ${r}" stroke-linecap="round"
+        stroke-dasharray="${s*i} ${s}" stroke-linecap="round"
         transform="rotate(-90 50 50)"/>
       <text x="50" y="46" text-anchor="middle" fill="var(--streak)" font-family="var(--font-mono)"
         font-size="22" font-weight="700">${t}</text>
@@ -727,27 +753,27 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         <!-- Monthly calendar -->
         <div class="card">
           <div class="card__header">
-            <h3 class="card__title" style="text-transform:capitalize">${r}</h3>
+            <h3 class="card__title" style="text-transform:capitalize">${s}</h3>
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
             <!-- Day headers -->
-            ${["Lun","Mar","Mer","Gio","Ven","Sab","Dom"].map(t=>W`
+            ${["Lun","Mar","Mer","Gio","Ven","Sab","Dom"].map(t=>F`
               <div style="text-align:center;font-size:11px;color:var(--text-muted);font-weight:600;padding-bottom:6px">${t}</div>
             `)}
             <!-- Day cells -->
-            ${s.flatMap(t=>t.map(t=>{if(0===t.day)return W`<div></div>`;const e=t.intensity>=0?It[t.intensity]:"var(--bg-soft)",r=t.day===i.getDate();return W`
+            ${r.flatMap(t=>t.map(t=>{if(0===t.day)return F`<div></div>`;const e=t.intensity>=0?Ht[t.intensity]:"var(--bg-soft)",s=t.day===i.getDate();return F`
                 <div class="heatmap__cell" style="
                   background:${e};
                   display:flex;align-items:center;justify-content:center;
                   font-family:var(--font-mono);font-size:11px;font-weight:500;
                   color:${t.intensity>=3?"white":"var(--text-soft)"};
-                  ${r?"box-shadow:inset 0 0 0 2px var(--accent);border-color:var(--accent)":""}
+                  ${s?"box-shadow:inset 0 0 0 2px var(--accent);border-color:var(--accent)":""}
                 ">${t.day}</div>`}))}
           </div>
           <!-- Legend -->
           <div class="row" style="margin-top:14px;gap:6px;justify-content:flex-end">
             <span class="text-xs text-mute">Meno</span>
-            ${It.map(t=>W`
+            ${Ht.map(t=>F`
               <div style="width:14px;height:14px;border-radius:3px;background:${t};border:1px solid var(--border-soft)"></div>
             `)}
             <span class="text-xs text-mute">Più</span>
@@ -757,21 +783,21 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         <!-- Prossimo allenamento -->
         <div class="card">
           <div class="card__header">
-            <div style="color:var(--accent)">${bt("calendar",18)}</div>
+            <div style="color:var(--accent)">${ft("calendar",18)}</div>
             <div>
               <h3 class="card__title">Prossimo allenamento</h3>
               <div class="card__sub">Domani · Upper Body</div>
             </div>
           </div>
           <div class="row" style="gap:8px">
-            <span class="chip">${bt("dumbbell",11)} Pesi</span>
-            <span class="chip">${bt("clock",11)} ~60 min</span>
-            <span class="chip chip--xp">${bt("bolt",11)} ~120 XP</span>
+            <span class="chip">${ft("dumbbell",11)} Pesi</span>
+            <span class="chip">${ft("clock",11)} ~60 min</span>
+            <span class="chip chip--xp">${ft("bolt",11)} ~120 XP</span>
           </div>
         </div>
 
       </div>
-    `}};Tt.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Tt.prototype,"card",void 0),Tt=t([pt("monitor-calendar")],Tt);const Ot=[{exercise:"Stacco",icon:"dumbbell",value:"120 kg",delta:"+5 kg",deltaPositive:!0,sparkData:[95,100,105,105,110,112,115,120]},{exercise:"Squat",icon:"dumbbell",value:"95 kg",delta:"+5 kg",deltaPositive:!0,sparkData:[70,75,80,82,85,88,90,95]},{exercise:"Panca",icon:"dumbbell",value:"65 kg",delta:"0 kg · 42g",deltaPositive:!1,sparkData:[55,58,60,62,63,64,65,65]},{exercise:"5km",icon:"run",value:"24:18",delta:"-0:32",deltaPositive:!0,sparkData:[28,27.5,27,26,25.5,25,24.8,24.3]}],Bt=[{label:"Pesi",pct:48,color:"var(--accent)"},{label:"Corsa",pct:28,color:"var(--ok)"},{label:"Cammino",pct:14,color:"var(--warn)"},{label:"HIIT",pct:10,color:"var(--danger)"}],jt=[[82,3200],[81.5,3400],[81,3100],[80.5,3600],[80,3500],[79.5,3800],[79,3700],[78.5,4e3],[78,3900],[77.8,4200],[80.2,3300],[79.8,3450],[79.2,3650],[78.8,3850],[78.2,4100]];let Nt=class extends dt{render(){return W`
+    `}};Ot.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Ot.prototype,"card",void 0),Ot=t([pt("monitor-calendar")],Ot);const Bt=[{exercise:"Stacco",icon:"dumbbell",value:"120 kg",delta:"+5 kg",deltaPositive:!0,sparkData:[95,100,105,105,110,112,115,120]},{exercise:"Squat",icon:"dumbbell",value:"95 kg",delta:"+5 kg",deltaPositive:!0,sparkData:[70,75,80,82,85,88,90,95]},{exercise:"Panca",icon:"dumbbell",value:"65 kg",delta:"0 kg · 42g",deltaPositive:!1,sparkData:[55,58,60,62,63,64,65,65]},{exercise:"5km",icon:"run",value:"24:18",delta:"-0:32",deltaPositive:!0,sparkData:[28,27.5,27,26,25.5,25,24.8,24.3]}],jt=[{label:"Pesi",pct:48,color:"var(--accent)"},{label:"Corsa",pct:28,color:"var(--ok)"},{label:"Cammino",pct:14,color:"var(--warn)"},{label:"HIIT",pct:10,color:"var(--danger)"}],Dt=[[82,3200],[81.5,3400],[81,3100],[80.5,3600],[80,3500],[79.5,3800],[79,3700],[78.5,4e3],[78,3900],[77.8,4200],[80.2,3300],[79.8,3450],[79.2,3650],[78.8,3850],[78.2,4100]];let Rt=class extends dt{render(){return F`
       <h1 class="page-title">Statistiche</h1>
       <p class="page-sub">Analisi, record personali, predizioni</p>
 
@@ -783,15 +809,15 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
       <!-- PR section -->
       <h2 class="card__title" style="margin-bottom:14px">Record personali</h2>
       <div class="card" style="margin-bottom:24px">
-        ${Ot.map(t=>this._renderPRRow(t))}
+        ${Bt.map(t=>this._renderPRRow(t))}
       </div>
 
       <!-- Distribution -->
       <h2 class="card__title" style="margin-bottom:14px">Distribuzione 30g</h2>
       <div class="card">
-        ${Bt.map(t=>this._renderDistBar(t))}
+        ${jt.map(t=>this._renderDistBar(t))}
       </div>
-    `}_renderCorrelation(){const t=30,e=140,i=jt.map(t=>t[0]),r=jt.map(t=>t[1]),s=Math.min(...i),o=Math.max(...i),a=Math.min(...r),n=Math.max(...r),l=e=>t+(e-s)/(o-s)*220,d=t=>170-(t-a)/(n-a)*e,c=l(o),p=d(a),h=l(s),v=d(n);return W`
+    `}_renderCorrelation(){const t=30,e=140,i=Dt.map(t=>t[0]),s=Dt.map(t=>t[1]),r=Math.min(...i),o=Math.max(...i),a=Math.min(...s),n=Math.max(...s),l=e=>t+(e-r)/(o-r)*220,d=t=>170-(t-a)/(n-a)*e,c=l(o),p=d(a),h=l(r),v=d(n);return F`
       <div class="card">
         <div class="card__header">
           <div style="flex:1">
@@ -814,14 +840,14 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           <text x="${140}" y="${196}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">Peso (kg)</text>
           <text x="8" y="${100}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)" transform="rotate(-90 8 ${100})">Volume (kg)</text>
           <!-- dots -->
-          ${jt.map(([t,e])=>F`
+          ${Dt.map(([t,e])=>W`
             <circle cx="${l(t)}" cy="${d(e)}" r="4" fill="var(--accent)" opacity="0.7"/>
           `)}
           <!-- regression -->
           <line x1="${c}" y1="${p}" x2="${h}" y2="${v}" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.6"/>
         </svg>
       </div>
-    `}_renderPrediction(){return W`
+    `}_renderPrediction(){return F`
       <div class="card">
         <div class="card__header">
           <h3 class="card__title">Predizione</h3>
@@ -837,9 +863,9 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           viene raggiunto entro circa 6 settimane. Il modello tiene conto della variazione idrica giornaliera.
         </p>
       </div>
-    `}_renderPRRow(t){const e=$t(t.sparkData,60,20);return W`
+    `}_renderPRRow(t){const e=$t(t.sparkData,60,20);return F`
       <div class="stat-row">
-        <div class="stat-row__icon">${bt(t.icon,17)}</div>
+        <div class="stat-row__icon">${ft(t.icon,17)}</div>
         <div class="stat-row__main">
           <div class="stat-row__name">${t.exercise}</div>
         </div>
@@ -849,7 +875,7 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         <span class="stat-row__value">${t.value}</span>
         <span class="chip ${t.deltaPositive?"chip--ok":""}" style="margin-left:6px">${t.delta}</span>
       </div>
-    `}_renderDistBar(t){return W`
+    `}_renderDistBar(t){return F`
       <div class="skill-bar" style="margin-bottom:8px">
         <span class="skill-bar__label">${t.label}</span>
         <div class="skill-bar__track">
@@ -857,7 +883,7 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         </div>
         <span class="skill-bar__value">${t.pct}%</span>
       </div>
-    `}};Nt.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Nt.prototype,"card",void 0),Nt=t([pt("monitor-stats")],Nt);const Rt=[{name:"Blu",chip:"chip--accent",hex:"#4a6cf7"},{name:"Verde",chip:"chip--ok",hex:"#2dbc6e"},{name:"Arancio",chip:"chip--warn",hex:"#d4930d"},{name:"Rosso",chip:"chip--danger",hex:"#d94040"},{name:"Viola",chip:"chip--xp",hex:"#9060e8"}],Dt=[{key:"pesi",label:"Pesi",points:40,iconName:"dumbbell",colors:Rt,defaultColor:"chip--accent"},{key:"corsa",label:"Corsa",points:30,iconName:"run",colors:Rt,defaultColor:"chip--ok"},{key:"cammino",label:"Cammino",points:20,iconName:"heart",colors:Rt,defaultColor:"chip--warn"},{key:"hiit",label:"HIIT",points:35,iconName:"flame",colors:Rt,defaultColor:"chip--danger"}],Ut=[{key:"peso",label:"Peso",entity:"sensor.withings_peso"},{key:"altezza",label:"Altezza",entity:"sensor.withings_altezza"},{key:"obiettivo_peso",label:"Obiettivo peso",entity:"sensor.withings_obiettivo_di_peso"},{key:"passi",label:"Passi oggi",entity:"sensor.withings_passi_oggi"},{key:"calorie_attive",label:"Calorie attive",entity:"sensor.withings_calorie_attive_bruciate_oggi"},{key:"calorie_totali",label:"Calorie totali",entity:"sensor.withings_calorie_totali_bruciate_oggi"},{key:"distanza",label:"Distanza oggi",entity:"sensor.withings_distanza_percorsa_oggi"},{key:"attivita_intensa",label:"Attività intensa",entity:"sensor.withings_attivita_intensa_oggi"},{key:"attivita_moderata",label:"Attività moderata",entity:"sensor.withings_attivita_moderata_oggi"},{key:"attivita_leggera",label:"Attività leggera",entity:"sensor.withings_attivita_leggera_oggi"},{key:"tempo_attivita",label:"Tempo attività",entity:"sensor.withings_tempo_di_attivita_oggi"},{key:"elevazione",label:"Elevazione oggi",entity:"sensor.withings_variazione_dell_elevazione_oggi"}];let Lt=class extends dt{constructor(){super(...arguments),this._importPath="/config/esporta.zip",this._importStatus="idle",this._importMessage=""}get hass(){return this.card.hass}render(){return W`
+    `}};Rt.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Rt.prototype,"card",void 0),Rt=t([pt("monitor-stats")],Rt);const Ut=[{name:"Blu",chip:"chip--accent",hex:"#4a6cf7"},{name:"Verde",chip:"chip--ok",hex:"#2dbc6e"},{name:"Arancio",chip:"chip--warn",hex:"#d4930d"},{name:"Rosso",chip:"chip--danger",hex:"#d94040"},{name:"Viola",chip:"chip--xp",hex:"#9060e8"}],Nt=[{key:"pesi",label:"Pesi",points:40,iconName:"dumbbell",colors:Ut,defaultColor:"chip--accent"},{key:"corsa",label:"Corsa",points:30,iconName:"run",colors:Ut,defaultColor:"chip--ok"},{key:"cammino",label:"Cammino",points:20,iconName:"heart",colors:Ut,defaultColor:"chip--warn"},{key:"hiit",label:"HIIT",points:35,iconName:"flame",colors:Ut,defaultColor:"chip--danger"}],Lt=[{key:"peso",label:"Peso",entity:"sensor.withings_peso"},{key:"altezza",label:"Altezza",entity:"sensor.withings_altezza"},{key:"obiettivo_peso",label:"Obiettivo peso",entity:"sensor.withings_obiettivo_di_peso"},{key:"passi",label:"Passi oggi",entity:"sensor.withings_passi_oggi"},{key:"calorie_attive",label:"Calorie attive",entity:"sensor.withings_calorie_attive_bruciate_oggi"},{key:"calorie_totali",label:"Calorie totali",entity:"sensor.withings_calorie_totali_bruciate_oggi"},{key:"distanza",label:"Distanza oggi",entity:"sensor.withings_distanza_percorsa_oggi"},{key:"attivita_intensa",label:"Attività intensa",entity:"sensor.withings_attivita_intensa_oggi"},{key:"attivita_moderata",label:"Attività moderata",entity:"sensor.withings_attivita_moderata_oggi"},{key:"attivita_leggera",label:"Attività leggera",entity:"sensor.withings_attivita_leggera_oggi"},{key:"tempo_attivita",label:"Tempo attività",entity:"sensor.withings_tempo_di_attivita_oggi"},{key:"elevazione",label:"Elevazione oggi",entity:"sensor.withings_variazione_dell_elevazione_oggi"}];let Vt=class extends dt{constructor(){super(...arguments),this._importPath="/config/esporta.zip",this._importStatus="idle",this._importMessage=""}get hass(){return this.card.hass}render(){return F`
       <div class="col" style="gap:22px">
 
         <!-- Header -->
@@ -876,7 +902,7 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         ${this._renderImport()}
 
       </div>
-    `}_renderWorkoutTypes(){return W`
+    `}_renderWorkoutTypes(){return F`
       <div>
         <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Tipi di allenamento</h2>
         <div class="card">
@@ -884,19 +910,19 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
             Ogni allenamento importato assegna punti in base al tipo di attività. Scegli il colore per ogni tipo.
           </p>
           <div class="col" style="gap:10px">
-            ${Dt.map(t=>W`
+            ${Nt.map(t=>F`
                 <div class="card card--ghost" style="padding:12px 14px">
                   <div class="sp-between" style="margin-bottom:8px">
                     <div style="display:flex;align-items:center;gap:8px">
                       <div class="stat-row__icon" style="width:28px;height:28px">
-                        ${bt(t.iconName,14)}
+                        ${ft(t.iconName,14)}
                       </div>
                       <span class="fw-600">${t.label}</span>
                     </div>
                     <span class="mono fw-600">${t.points} pt</span>
                   </div>
                   <div style="display:flex;gap:6px;flex-wrap:wrap">
-                    ${t.colors.map(e=>W`
+                    ${t.colors.map(e=>F`
                         <button class="color-dot${e.chip===t.defaultColor?" color-dot--active":""}"
                           style="background:${e.hex}"
                           title="${e.name}">
@@ -908,13 +934,13 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           </div>
         </div>
       </div>
-    `}_renderWithings(){return W`
+    `}_renderWithings(){return F`
       <div>
         <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Withings</h2>
         <div class="card">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <div class="stat-row__icon" style="background:var(--accent-soft);color:var(--accent-ink)">
-              ${bt("scale",17)}
+              ${ft("scale",17)}
             </div>
             <div>
               <div class="fw-600">Sensori collegati</div>
@@ -924,25 +950,25 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
             </div>
           </div>
           <div class="col" style="gap:4px">
-            ${Ut.map(t=>{const e=this.hass?.states?.[t.entity],i=e?.state,r=e?.attributes?.unit_of_measurement||"",s=i&&"unknown"!==i&&"unavailable"!==i;return W`
+            ${Lt.map(t=>{const e=this.hass?.states?.[t.entity],i=e?.state,s=e?.attributes?.unit_of_measurement||"",r=i&&"unknown"!==i&&"unavailable"!==i;return F`
                   <div class="sp-between" style="align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
                     <span class="text-sm fw-500" style="min-width:130px">${t.label}</span>
                     <div style="display:flex;align-items:center;gap:6px">
-                      <span class="mono text-sm">${s?`${parseFloat(i).toLocaleString("it-IT")} ${r}`:"—"}</span>
-                      <span class="chip__dot" style="width:6px;height:6px;border-radius:50%;background:${s?"var(--ok)":"var(--text-muted)"}"></span>
+                      <span class="mono text-sm">${r?`${parseFloat(i).toLocaleString("it-IT")} ${s}`:"—"}</span>
+                      <span class="chip__dot" style="width:6px;height:6px;border-radius:50%;background:${r?"var(--ok)":"var(--text-muted)"}"></span>
                     </div>
                   </div>
                 `})}
           </div>
         </div>
       </div>
-    `}_renderImport(){const t="loading"===this._importStatus;return W`
+    `}_renderImport(){const t="loading"===this._importStatus;return F`
       <div>
         <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Importazione Apple Health</h2>
         <div class="card">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <div class="stat-row__icon" style="background:var(--accent-soft);color:var(--accent-ink)">
-              ${bt("heart",17)}
+              ${ft("heart",17)}
             </div>
             <div>
               <div class="fw-600">Importa da file</div>
@@ -963,7 +989,7 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
               ${t?"Importo...":"Importa"}
             </button>
           </div>
-          ${this._importMessage?W`
+          ${this._importMessage?F`
             <div style="margin-top:10px;padding:8px 12px;border-radius:var(--r-sm);font-size:13px;
               background:${"error"===this._importStatus?"var(--danger-soft)":"var(--ok-soft)"};
               color:${"error"===this._importStatus?"var(--danger)":"var(--ok)"}">
@@ -977,45 +1003,45 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
           </p>
         </div>
       </div>
-    `}async _handleImport(){if(this._importPath.trim()){this._importStatus="loading",this._importMessage="";try{await(t=this.hass,e="import_apple_health",i={file_path:this._importPath.trim()},t.callService(ft,e,i)),this._importStatus="done",this._importMessage="Importazione completata. Controlla gli allenamenti."}catch(t){this._importStatus="error",this._importMessage=t?.message||"Errore durante l'importazione."}var t,e,i}}};Lt.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Lt.prototype,"card",void 0),t([ut()],Lt.prototype,"_importPath",void 0),t([ut()],Lt.prototype,"_importStatus",void 0),t([ut()],Lt.prototype,"_importMessage",void 0),Lt=t([pt("monitor-settings")],Lt);const Vt={overview:["Panoramica","monitor / panoramica"],workouts:["Allenamenti","monitor / allenamenti"],body:["Composizione","monitor / composizione"],calendar:["Calendario","monitor / calendario"],stats:["Statistiche","monitor / statistiche"],settings:["Impostazioni","monitor / impostazioni"]};let Wt=class extends dt{constructor(){super(...arguments),this._screen="overview",this._mobile=!1,this._drawerOpen=!1,this._desktopCollapsed=!1,this._screenInitialised=!1}setConfig(t){this.config=t||{},t?.default_screen&&!this._screenInitialised&&(this._screen=t.default_screen,this._screenInitialised=!0),void 0!==t?.collapse_sidebar&&(this._desktopCollapsed=!!t.collapse_sidebar),this.isConnected&&this._checkPanelMode()}static getStubConfig(){return{type:"custom:monitor-allenamenti-card"}}navigate(t){this._screen=t,this._mobile&&(this._drawerOpen=!1)}_checkPanelMode(){if(!this.isConnected)return;const t=this.config?.panel_mode;let e;if(!0===t)e=!0;else if(!1===t)e=!1;else{const t=this.getBoundingClientRect();e=t.top<30&&t.height>200}this.hasAttribute("panel-mode")!==e&&this.toggleAttribute("panel-mode",e);const i=this.config?.panel_offset;"number"==typeof i&&i>=0?this.style.setProperty("--monitor-panel-offset",`${i}px`):this.style.removeProperty("--monitor-panel-offset")}connectedCallback(){super.connectedCallback(),this._checkPanelMode(),setTimeout(()=>this._checkPanelMode(),50),setTimeout(()=>this._checkPanelMode(),250),this._resizeObserver=new ResizeObserver(t=>{this._checkPanelMode();for(const e of t){const t=this.config?.mobile_threshold??700;this._mobile=t>0&&e.contentRect.width<t}}),this._resizeObserver.observe(this)}disconnectedCallback(){super.disconnectedCallback(),this._resizeObserver?.disconnect()}firstUpdated(){this._checkPanelMode()}render(){const[t,e]=Vt[this._screen]||Vt.overview,i=this._mobile&&this._drawerOpen;let r;r=this._mobile?i?"drawer":"mini":this._desktopCollapsed?"mini":"full";const s=_t(this.hass,"punti")||"0",o=_t(this.hass,"streak")||"0";return W`
+    `}async _handleImport(){if(this._importPath.trim()){this._importStatus="loading",this._importMessage="";try{await(t=this.hass,e="import_apple_health",i={file_path:this._importPath.trim()},t.callService(bt,e,i)),this._importStatus="done",this._importMessage="Importazione completata. Controlla gli allenamenti."}catch(t){this._importStatus="error",this._importMessage=t?.message||"Errore durante l'importazione."}var t,e,i}}};Vt.styles=xt,t([gt({attribute:!1,hasChanged:()=>!0})],Vt.prototype,"card",void 0),t([ut()],Vt.prototype,"_importPath",void 0),t([ut()],Vt.prototype,"_importStatus",void 0),t([ut()],Vt.prototype,"_importMessage",void 0),Vt=t([pt("monitor-settings")],Vt);const Ft={overview:["Panoramica","monitor / panoramica"],workouts:["Allenamenti","monitor / allenamenti"],body:["Composizione","monitor / composizione"],calendar:["Calendario","monitor / calendario"],stats:["Statistiche","monitor / statistiche"],settings:["Impostazioni","monitor / impostazioni"]};let Wt=class extends dt{constructor(){super(...arguments),this._screen="overview",this._mobile=!1,this._drawerOpen=!1,this._desktopCollapsed=!1,this._screenInitialised=!1}setConfig(t){this.config=t||{},t?.default_screen&&!this._screenInitialised&&(this._screen=t.default_screen,this._screenInitialised=!0),void 0!==t?.collapse_sidebar&&(this._desktopCollapsed=!!t.collapse_sidebar),this.isConnected&&this._checkPanelMode()}static getStubConfig(){return{type:"custom:monitor-allenamenti-card"}}navigate(t){this._screen=t,this._mobile&&(this._drawerOpen=!1)}_checkPanelMode(){if(!this.isConnected)return;const t=this.config?.panel_mode;let e;if(!0===t)e=!0;else if(!1===t)e=!1;else{const t=this.getBoundingClientRect();e=t.top<30&&t.height>200}this.hasAttribute("panel-mode")!==e&&this.toggleAttribute("panel-mode",e);const i=this.config?.panel_offset;"number"==typeof i&&i>=0?this.style.setProperty("--monitor-panel-offset",`${i}px`):this.style.removeProperty("--monitor-panel-offset")}connectedCallback(){super.connectedCallback(),this._checkPanelMode(),setTimeout(()=>this._checkPanelMode(),50),setTimeout(()=>this._checkPanelMode(),250),this._resizeObserver=new ResizeObserver(t=>{this._checkPanelMode();for(const e of t){const t=this.config?.mobile_threshold??700;this._mobile=t>0&&e.contentRect.width<t}}),this._resizeObserver.observe(this)}disconnectedCallback(){super.disconnectedCallback(),this._resizeObserver?.disconnect()}firstUpdated(){this._checkPanelMode()}render(){const[t,e]=Ft[this._screen]||Ft.overview,i=this._mobile&&this._drawerOpen;let s;s=this._mobile?i?"drawer":"mini":this._desktopCollapsed?"mini":"full";const r=_t(this.hass,"punti")||"0",o=_t(this.hass,"streak")||"0";return F`
       <div class="app">
-        ${this._renderSidebar(r)}
-        ${i?W`<div class="sidebar-backdrop" @click=${()=>{this._drawerOpen=!1}}></div>`:G}
+        ${this._renderSidebar(s)}
+        ${i?F`<div class="sidebar-backdrop" @click=${()=>{this._drawerOpen=!1}}></div>`:G}
         <main class="content">
-          ${this._renderTopbar(t,e,s,o)}
+          ${this._renderTopbar(t,e,r,o)}
           <div class="content__inner">
             ${this._renderScreen()}
           </div>
         </main>
       </div>
-    `}_renderSidebar(t){const e="mini"===t;return W`
+    `}_renderSidebar(t){const e="mini"===t;return F`
       <aside class="sidebar" data-mode="${t}">
         <button class="sidebar__hamburger"
           @click=${()=>{this._mobile?this._drawerOpen=!this._drawerOpen:this._desktopCollapsed=!this._desktopCollapsed}}>
-          ${bt(e?"menu":"close",18)}
+          ${ft(e?"menu":"close",18)}
         </button>
         <div class="sidebar__brand">
-          <div class="sidebar__brand-mark">${bt("dumbbell",16)}</div>
-          ${e?G:W`<div>
+          <div class="sidebar__brand-mark">${ft("dumbbell",16)}</div>
+          ${e?G:F`<div>
                 <div class="sidebar__brand-name">Monitor</div>
                 <div class="sidebar__brand-sub">v${"1.0.0"}</div>
               </div>`}
         </div>
-        ${e?G:W`<div class="nav-section">Tracking</div>`}
-        ${[{key:"overview",label:"Panoramica",iconName:"dashboard"},{key:"workouts",label:"Allenamenti",iconName:"dumbbell"},{key:"body",label:"Composizione",iconName:"scale"},{key:"calendar",label:"Calendario",iconName:"calendar"},{key:"stats",label:"Statistiche",iconName:"chart"}].map(t=>W`
+        ${e?G:F`<div class="nav-section">Tracking</div>`}
+        ${[{key:"overview",label:"Panoramica",iconName:"dashboard"},{key:"workouts",label:"Allenamenti",iconName:"dumbbell"},{key:"body",label:"Composizione",iconName:"scale"},{key:"calendar",label:"Calendario",iconName:"calendar"},{key:"stats",label:"Statistiche",iconName:"chart"}].map(t=>F`
             <button class="nav-item" data-active="${this._screen===t.key}"
               title="${e?t.label:""}" @click=${()=>this.navigate(t.key)}>
-              ${bt(t.iconName,16)} ${e?G:W`<span>${t.label}</span>`}
+              ${ft(t.iconName,16)} ${e?G:F`<span>${t.label}</span>`}
             </button>
           `)}
         <div class="sidebar__footer">
           <button class="nav-item" data-active="${"settings"===this._screen}"
             title="${e?"Impostazioni":""}" @click=${()=>this.navigate("settings")}>
-            ${bt("settings",16)} ${e?G:W`<span>Impostazioni</span>`}
+            ${ft("settings",16)} ${e?G:F`<span>Impostazioni</span>`}
           </button>
         </div>
       </aside>
-    `}_renderTopbar(t,e,i,r){return W`
+    `}_renderTopbar(t,e,i,s){return F`
       <div class="topbar">
         <div>
           <div class="topbar__title">${t}</div>
@@ -1023,12 +1049,12 @@ function t(t,e,i,r){var s,o=arguments.length,a=o<3?e:null===r?r=Object.getOwnPro
         </div>
         <div class="topbar__spacer"></div>
         <div class="topbar__pill">
-          ${bt("trending-up",13)}
+          ${ft("trending-up",13)}
           <span>${i} pt</span>
         </div>
         <div class="topbar__pill">
           <span class="topbar__dot"></span>
-          <span>Streak ${r}g</span>
+          <span>Streak ${s}g</span>
         </div>
       </div>
-    `}_renderScreen(){switch(this._screen){case"overview":default:return W`<monitor-overview .card=${this}></monitor-overview>`;case"workouts":return W`<monitor-workouts .card=${this}></monitor-workouts>`;case"body":return W`<monitor-body .card=${this}></monitor-body>`;case"calendar":return W`<monitor-calendar .card=${this}></monitor-calendar>`;case"stats":return W`<monitor-stats .card=${this}></monitor-stats>`;case"settings":return W`<monitor-settings .card=${this}></monitor-settings>`}}};Wt.styles=[mt,xt],t([gt({attribute:!1})],Wt.prototype,"hass",void 0),t([gt({attribute:!1})],Wt.prototype,"config",void 0),t([ut()],Wt.prototype,"_screen",void 0),t([ut()],Wt.prototype,"_mobile",void 0),t([ut()],Wt.prototype,"_drawerOpen",void 0),t([ut()],Wt.prototype,"_desktopCollapsed",void 0),Wt=t([pt("monitor-allenamenti-card")],Wt),window.customCards=window.customCards||[],window.customCards.push({type:"monitor-allenamenti-card",name:"Monitor Allenamenti",description:"Tracker peso e allenamenti con statistiche",preview:!0});export{Wt as MonitorAllenamentiCard};
+    `}_renderScreen(){switch(this._screen){case"overview":default:return F`<monitor-overview .card=${this}></monitor-overview>`;case"workouts":return F`<monitor-workouts .card=${this}></monitor-workouts>`;case"body":return F`<monitor-body .card=${this}></monitor-body>`;case"calendar":return F`<monitor-calendar .card=${this}></monitor-calendar>`;case"stats":return F`<monitor-stats .card=${this}></monitor-stats>`;case"settings":return F`<monitor-settings .card=${this}></monitor-settings>`}}};Wt.styles=[mt,xt],t([gt({attribute:!1})],Wt.prototype,"hass",void 0),t([gt({attribute:!1})],Wt.prototype,"config",void 0),t([ut()],Wt.prototype,"_screen",void 0),t([ut()],Wt.prototype,"_mobile",void 0),t([ut()],Wt.prototype,"_drawerOpen",void 0),t([ut()],Wt.prototype,"_desktopCollapsed",void 0),Wt=t([pt("monitor-allenamenti-card")],Wt),window.customCards=window.customCards||[],window.customCards.push({type:"monitor-allenamenti-card",name:"Monitor Allenamenti",description:"Tracker peso e allenamenti con statistiche",preview:!0});export{Wt as MonitorAllenamentiCard};

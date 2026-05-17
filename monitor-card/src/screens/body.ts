@@ -2,15 +2,20 @@ import { LitElement, html, svg } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { monitorStyles } from "../styles";
 import { icon } from "../icons";
-import { entity, fmtNum, fmtDelta, sparklinePath } from "../utils";
+import { fmtNum, fmtDelta, sparklinePath } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
 
 const RANGES = ["7G", "30G", "3M", "6M", "1A"] as const;
 
-/* Demo weight trend for sparkline */
-const DEMO_TREND = [80.2, 79.8, 79.9, 79.5, 79.1, 79.3, 78.9, 78.7, 79.0, 78.6,
-  78.8, 78.4, 78.5, 78.2, 78.4, 78.1, 78.3, 78.0, 78.2, 77.9,
-  78.1, 77.8, 78.0, 77.7, 77.9, 78.1, 78.0, 77.8, 78.2, 78.4];
+const DEMO_TREND = [116.2, 115.8, 115.9, 115.5, 115.1, 115.3, 114.9, 114.7, 115.0, 114.6,
+  114.8, 114.4, 114.5, 114.2, 114.4, 114.1, 114.3, 114.0, 114.2, 113.9,
+  114.1, 113.8, 114.0, 113.7, 113.9, 114.1, 114.0, 113.8, 114.2, 114.5];
+
+function ws(hass: any, id: string): string | null {
+  const s = hass.states[id];
+  if (!s || s.state === "unknown" || s.state === "unavailable") return null;
+  return s.state;
+}
 
 @customElement("monitor-body")
 export class MonitorBody extends LitElement {
@@ -22,46 +27,34 @@ export class MonitorBody extends LitElement {
   render() {
     const hass = this.card.hass;
 
-    /* -- sensor reads with fallbacks ------------------------------------ */
-    const peso     = parseFloat(entity(hass, "peso") || hass.states["sensor.weight"]?.state || "78.4");
-    const grasso   = parseFloat(hass.states["sensor.fat_ratio"]?.state || "18.2");
-    const muscolo  = parseFloat(hass.states["sensor.muscle_mass_kg"]?.state || "35.1");
-    const acqua    = parseFloat(hass.states["sensor.body_water"]?.state || "55.8");
-    const ossa     = parseFloat(hass.states["sensor.bone_mass_kg"]?.state || "3.4");
-    const bmi      = parseFloat(hass.states["sensor.bmi"]?.state || "24.1");
+    const peso     = parseFloat(ws(hass, "sensor.withings_peso") || "0");
+    const altezza  = parseFloat(ws(hass, "sensor.withings_altezza") || "0");
+    const obiettivo = parseFloat(ws(hass, "sensor.withings_obiettivo_di_peso") || "0");
+    const passi    = parseFloat(ws(hass, "sensor.withings_passi_oggi") || "0");
+    const calAtt   = parseFloat(ws(hass, "sensor.withings_calorie_attive_bruciate_oggi") || "0");
+    const calTot   = parseFloat(ws(hass, "sensor.withings_calorie_totali_bruciate_oggi") || "0");
+    const distanza = parseFloat(ws(hass, "sensor.withings_distanza_percorsa_oggi") || "0");
+    const attInt   = parseFloat(ws(hass, "sensor.withings_attivita_intensa_oggi") || "0");
+    const attMod   = parseFloat(ws(hass, "sensor.withings_attivita_moderata_oggi") || "0");
+    const attLeg   = parseFloat(ws(hass, "sensor.withings_attivita_leggera_oggi") || "0");
+    const elevaz   = parseFloat(ws(hass, "sensor.withings_variazione_dell_elevazione_oggi") || "0");
 
-    /* demo-only extras */
-    const hrRiposo  = 58;
-    const etaVasc   = 32;
-    const pesoTarget = 75.0;
-    const pesoDelta30 = -2.0;
+    const bmi = altezza > 0 ? peso / (altezza * altezza) : 0;
+    const daObiettivo = peso - obiettivo;
+    const distKm = distanza / 1000;
 
-    /* sparkline */
     const sparkW = 460;
     const sparkH = 140;
     const path = sparklinePath(DEMO_TREND, sparkW, sparkH);
 
-    const kpis: { label: string; value: string; delta: string; iconName: string }[] = [
-      { label: "Peso",       value: `${fmtNum(peso, 1)} kg`,     delta: fmtDelta(pesoDelta30, "in 30g"), iconName: "weight" },
-      { label: "Grasso",     value: `${fmtNum(grasso, 1)}%`,     delta: fmtDelta(-0.8, "in 30g"),        iconName: "flame" },
-      { label: "Muscolo",    value: `${fmtNum(muscolo, 1)} kg`,  delta: fmtDelta(0.3, "in 30g"),         iconName: "dumbbell" },
-      { label: "Acqua",      value: `${fmtNum(acqua, 1)}%`,      delta: fmtDelta(0.5, "in 30g"),         iconName: "droplet" },
-      { label: "Ossa",       value: `${fmtNum(ossa, 1)} kg`,     delta: "stabile",                       iconName: "shield" },
-      { label: "HR Riposo",  value: `${hrRiposo} bpm`,           delta: fmtDelta(-2, "in 30g"),           iconName: "heart" },
-      { label: "Età Vasc.",  value: `${etaVasc} anni`,           delta: fmtDelta(-1, "in 6m"),            iconName: "trending-down" },
-      { label: "BMI",        value: fmtNum(bmi, 1),              delta: fmtDelta(-0.6, "in 30g"),         iconName: "chart" },
-    ];
-
     return html`
       <div class="col" style="gap:22px">
 
-        <!-- Header -->
         <div>
           <h1 class="page-title">Composizione</h1>
-          <p class="page-sub">${fmtNum(peso, 1)} kg · ${fmtDelta(pesoDelta30)} kg in 30 giorni</p>
+          <p class="page-sub">${fmtNum(peso, 1)} kg · obiettivo ${fmtNum(obiettivo, 0)} kg (${fmtDelta(daObiettivo, "kg")})</p>
         </div>
 
-        <!-- Time range segmented -->
         <div class="segmented">
           ${RANGES.map(r => html`
             <button data-active="${this._range === r}"
@@ -71,7 +64,7 @@ export class MonitorBody extends LitElement {
           `)}
         </div>
 
-        <!-- Sparkline chart -->
+        <!-- Weight chart -->
         <div class="card" style="padding:20px">
           <div class="card__header">
             <h3 class="card__title">Andamento peso</h3>
@@ -90,40 +83,68 @@ export class MonitorBody extends LitElement {
           </svg>
         </div>
 
-        <!-- KPI grid 4x2 -->
+        <!-- Peso & BMI -->
         <div class="grid-4" style="grid-template-columns:repeat(4, 1fr)">
-          ${kpis.map(k => html`
-            <div class="kpi">
-              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
-                ${icon(k.iconName, 12)} ${k.label}
-              </div>
-              <div class="kpi__value" style="font-size:22px">${k.value}</div>
-              <div class="kpi__delta">${k.delta}</div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${icon("weight", 12)} Peso
             </div>
-          `)}
+            <div class="kpi__value" style="font-size:22px">${fmtNum(peso, 1)} kg</div>
+            <div class="kpi__delta">attuale</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${icon("target", 12)} Obiettivo
+            </div>
+            <div class="kpi__value" style="font-size:22px">${fmtNum(obiettivo, 0)} kg</div>
+            <div class="kpi__delta" style="color:${daObiettivo > 0 ? "var(--warn)" : "var(--ok)"}">${fmtDelta(daObiettivo, "kg")}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${icon("chart", 12)} BMI
+            </div>
+            <div class="kpi__value" style="font-size:22px">${fmtNum(bmi, 1)}</div>
+            <div class="kpi__delta">${altezza > 0 ? `${fmtNum(altezza * 100, 0)} cm` : "—"}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+              ${icon("trending-down", 12)} Da obiettivo
+            </div>
+            <div class="kpi__value" style="font-size:22px;color:${daObiettivo > 0 ? "var(--warn)" : "var(--ok)"}">${fmtNum(Math.abs(daObiettivo), 1)} kg</div>
+            <div class="kpi__delta">${daObiettivo > 0 ? "da perdere" : "raggiunto"}</div>
+          </div>
         </div>
 
-        <!-- Previsione -->
-        <div class="card">
-          <div class="card__header">
-            <div style="color:var(--accent)">${icon("target", 18)}</div>
-            <div>
-              <h3 class="card__title">Previsione</h3>
-              <div class="card__sub">Basata sul trend ${this._range}</div>
+        <!-- Attività giornaliera -->
+        <div>
+          <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Attività oggi</h2>
+          <div class="grid-4" style="grid-template-columns:repeat(4, 1fr)">
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${icon("run", 12)} Passi
+              </div>
+              <div class="kpi__value" style="font-size:22px">${fmtNum(passi, 0)}</div>
             </div>
-          </div>
-          <div class="row" style="gap:24px;padding:8px 0">
-            <div>
-              <div class="text-mute text-xs" style="margin-bottom:4px">Peso previsto (90g)</div>
-              <div class="mono fw-700" style="font-size:22px">${fmtNum(pesoTarget + 1.8, 1)} kg</div>
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${icon("flame", 12)} Cal. attive
+              </div>
+              <div class="kpi__value" style="font-size:22px">${fmtNum(calAtt, 0)}</div>
+              <div class="kpi__delta">${fmtNum(calTot, 0)} totali</div>
             </div>
-            <div>
-              <div class="text-mute text-xs" style="margin-bottom:4px">Intervallo</div>
-              <div class="mono fw-600" style="font-size:15px;color:var(--text-soft)">${fmtNum(pesoTarget + 0.8, 1)} – ${fmtNum(pesoTarget + 2.8, 1)} kg</div>
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${icon("heart", 12)} Distanza
+              </div>
+              <div class="kpi__value" style="font-size:22px">${fmtNum(distKm, 1)} km</div>
+              <div class="kpi__delta">${fmtNum(elevaz, 0)} m dislivello</div>
             </div>
-            <div>
-              <div class="text-mute text-xs" style="margin-bottom:4px">Obiettivo</div>
-              <div class="mono fw-600" style="font-size:15px;color:var(--ok)">${fmtNum(pesoTarget, 1)} kg</div>
+            <div class="kpi">
+              <div class="kpi__label" style="display:flex;align-items:center;gap:5px">
+                ${icon("clock", 12)} Attività
+              </div>
+              <div class="kpi__value" style="font-size:22px">${fmtNum(attInt + attMod, 0)} min</div>
+              <div class="kpi__delta">${fmtNum(attLeg, 0)} min leggera</div>
             </div>
           </div>
         </div>
