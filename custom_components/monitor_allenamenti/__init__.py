@@ -16,6 +16,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
 
 from .const import (
@@ -59,8 +60,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await coordinator.periodic_evaluation()
 
     entry.async_on_unload(
-        hass.helpers.event.async_track_time_interval(
-            _periodic_check, timedelta(minutes=5)
+        async_track_time_interval(
+            hass, _periodic_check, timedelta(minutes=5)
         )
     )
 
