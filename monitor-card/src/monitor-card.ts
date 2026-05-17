@@ -11,8 +11,9 @@ import "./screens/body";
 import "./screens/calendar";
 import "./screens/stats";
 import "./screens/settings";
+import "./editor";
 
-const CARD_VERSION = "1.0.0";
+const CARD_VERSION = "1.1.0";
 
 const TITLE_MAP: Record<Screen, [string, string]> = {
   overview: ["Panoramica", "monitor / panoramica"],
@@ -48,6 +49,10 @@ export class MonitorAllenamentiCard extends LitElement {
       this._desktopCollapsed = !!config.collapse_sidebar;
     }
     if (this.isConnected) this._checkPanelMode();
+  }
+
+  static getConfigElement() {
+    return document.createElement("monitor-allenamenti-card-editor");
   }
 
   static getStubConfig() {
