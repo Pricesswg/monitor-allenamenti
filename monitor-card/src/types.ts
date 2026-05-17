@@ -1,6 +1,7 @@
 export interface HomeAssistant {
   states: Record<string, HassState>;
   callService(domain: string, service: string, data?: Record<string, any>): Promise<void>;
+  callWS<T = any>(msg: Record<string, any>): Promise<T>;
   connection: { subscribeEvents(cb: (e: any) => void, type: string): Promise<() => void> };
   language: string;
 }
@@ -35,11 +36,29 @@ export interface Workout {
   id: string;
   date: string;
   type: string;
-  duration: number;
+  duration_min: number;
   calories: number;
-  distance?: number;
-  volume?: number;
+  distance_km?: number;
+  volume_kg?: number;
   sets?: number;
   points: number;
   source: string;
+}
+
+export interface WeightRecord {
+  date: string;
+  weight: number;
+  fat_ratio?: number | null;
+  muscle_mass?: number | null;
+  body_water?: number | null;
+}
+
+export interface MonitorState {
+  workouts: Workout[];
+  weight_history: WeightRecord[];
+  points_total: number;
+  streak: number;
+  streak_best: number;
+  personal_records: Record<string, number>;
+  last_workout_date: string | null;
 }

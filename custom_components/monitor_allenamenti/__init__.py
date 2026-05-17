@@ -10,6 +10,7 @@ from pathlib import Path
 
 import voluptuous as vol
 
+from homeassistant.components import websocket_api
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
@@ -53,6 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _register_services(hass, coordinator)
+    _register_websocket_api(hass)
     await _register_frontend_card(hass)
 
     # Periodic: weight polling + streak check every 5 min
@@ -116,6 +118,39 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
     return unload_ok
+
+
+_WS_REGISTERED_FLAG = f"{DOMAIN}_ws_registered"
+
+
+def _register_websocket_api(hass: HomeAssistant) -> None:
+    """Register WebSocket commands (once)."""
+    if hass.data.get(_WS_REGISTERED_FLAG):
+        return
+    hass.data[_WS_REGISTERED_FLAG] = True
+
+    @websocket_api.websocket_command(
+        {vol.Required("type"): f"{DOMAIN}/get_state"}
+    )
+    @websocket_api.async_response
+    async def ws_get_state(hass, connection, msg):
+        for coordinator in hass.data.get(DOMAIN, {}).values():
+            if not isinstance(coordinator, MonitorAllenamentiCoordinator):
+                continue
+            state = coordinator.state
+            connection.send_result(msg["id"], {
+                "workouts": (state.get("workouts") or [])[-100:],
+                "weight_history": state.get("weight_history") or [],
+                "points_total": state.get("points_total", 0),
+                "streak": state.get("streak", 0),
+                "streak_best": state.get("streak_best", 0),
+                "personal_records": state.get("personal_records", {}),
+                "last_workout_date": state.get("last_workout_date"),
+            })
+            return
+        connection.send_result(msg["id"], {})
+
+    websocket_api.async_register_command(hass, ws_get_state)
 
 
 def _register_services(hass: HomeAssistant, coordinator: MonitorAllenamentiCoordinator):

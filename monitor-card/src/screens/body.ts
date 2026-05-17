@@ -4,12 +4,19 @@ import { monitorStyles } from "../styles";
 import { icon } from "../icons";
 import { fmtNum, fmtDelta, sparklinePath } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
+import type { WeightRecord } from "../types";
 
 const RANGES = ["7G", "30G", "3M", "6M", "1A"] as const;
 
-const DEMO_TREND = [116.2, 115.8, 115.9, 115.5, 115.1, 115.3, 114.9, 114.7, 115.0, 114.6,
-  114.8, 114.4, 114.5, 114.2, 114.4, 114.1, 114.3, 114.0, 114.2, 113.9,
-  114.1, 113.8, 114.0, 113.7, 113.9, 114.1, 114.0, 113.8, 114.2, 114.5];
+function rangeDays(r: typeof RANGES[number]): number {
+  switch (r) {
+    case "7G": return 7;
+    case "30G": return 30;
+    case "3M": return 90;
+    case "6M": return 180;
+    case "1A": return 365;
+  }
+}
 
 function ws(hass: any, id: string): string | null {
   const s = hass.states[id];
@@ -43,9 +50,17 @@ export class MonitorBody extends LitElement {
     const daObiettivo = peso - obiettivo;
     const distKm = distanza / 1000;
 
+    const allHistory: WeightRecord[] = this.card.monitorState?.weight_history ?? [];
+    const days = rangeDays(this._range);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    const filtered = allHistory.filter(w => w.date >= cutoffStr);
+    const trend = filtered.map(w => w.weight);
+
     const sparkW = 460;
     const sparkH = 140;
-    const path = sparklinePath(DEMO_TREND, sparkW, sparkH);
+    const path = trend.length >= 2 ? sparklinePath(trend, sparkW, sparkH) : "";
 
     return html`
       <div class="col" style="gap:22px">
@@ -69,18 +84,29 @@ export class MonitorBody extends LitElement {
           <div class="card__header">
             <h3 class="card__title">Andamento peso</h3>
             <span class="chip chip--accent">${this._range}</span>
+            ${trend.length >= 2 ? html`
+              <span class="chip" style="margin-left:auto">
+                ${fmtDelta(trend[trend.length - 1] - trend[0], "kg")}
+              </span>
+            ` : ""}
           </div>
-          <svg class="sparkline" viewBox="0 0 ${sparkW} ${sparkH}" width="100%" height="200"
-            preserveAspectRatio="none" style="display:block">
-            <defs>
-              <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <path d="${path} L${sparkW},${sparkH} L0,${sparkH} Z" fill="url(#wg)"/>
-            <polyline points="${path.replace(/[ML]/g, "")}" stroke="var(--accent)"/>
-          </svg>
+          ${path ? html`
+            <svg class="sparkline" viewBox="0 0 ${sparkW} ${sparkH}" width="100%" height="200"
+              preserveAspectRatio="none" style="display:block">
+              <defs>
+                <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="${path} L${sparkW},${sparkH} L0,${sparkH} Z" fill="url(#wg)"/>
+              <polyline points="${path.replace(/[ML]/g, "")}" stroke="var(--accent)"/>
+            </svg>
+          ` : html`
+            <div style="height:200px;display:grid;place-items:center;color:var(--text-muted)">
+              Nessun dato peso per questo periodo
+            </div>
+          `}
         </div>
 
         <!-- Peso & BMI -->

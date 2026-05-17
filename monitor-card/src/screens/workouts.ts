@@ -4,65 +4,58 @@ import { monitorStyles } from "../styles";
 import { icon } from "../icons";
 import { fmtNum } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
+import type { Workout } from "../types";
 
-/* -- Types & demo data ------------------------------------------------- */
-
-interface DemoWorkout {
-  date: string;
-  dateShort: string;
-  type: "Pesi" | "Corsa" | "Cammino" | "HIIT";
-  duration: number;
-  calories: number;
-  metric: string;
-  points: number;
-}
-
-const DEMO_WORKOUTS: DemoWorkout[] = [
-  { date: "2026-05-15", dateShort: "Gio 15 mag", type: "Pesi",    duration: 52, calories: 320, metric: "4.200 kg", points: 40 },
-  { date: "2026-05-14", dateShort: "Mer 14 mag", type: "Corsa",   duration: 35, calories: 380, metric: "5,2 km",   points: 30 },
-  { date: "2026-05-13", dateShort: "Mar 13 mag", type: "Pesi",    duration: 48, calories: 290, metric: "3.800 kg", points: 40 },
-  { date: "2026-05-12", dateShort: "Lun 12 mag", type: "Cammino", duration: 45, calories: 210, metric: "4,1 km",   points: 20 },
-  { date: "2026-05-11", dateShort: "Dom 11 mag", type: "HIIT",    duration: 25, calories: 350, metric: "Zona 4",   points: 35 },
-  { date: "2026-05-10", dateShort: "Sab 10 mag", type: "Pesi",    duration: 55, calories: 340, metric: "4.500 kg", points: 40 },
-  { date: "2026-05-09", dateShort: "Ven 9 mag",  type: "Corsa",   duration: 40, calories: 410, metric: "6,1 km",   points: 30 },
-  { date: "2026-05-08", dateShort: "Gio 8 mag",  type: "Pesi",    duration: 50, calories: 310, metric: "4.100 kg", points: 40 },
-  { date: "2026-05-06", dateShort: "Mar 6 mag",  type: "Corsa",   duration: 30, calories: 320, metric: "4,8 km",   points: 30 },
-  { date: "2026-05-05", dateShort: "Lun 5 mag",  type: "Pesi",    duration: 45, calories: 280, metric: "3.600 kg", points: 40 },
-];
-
-type FilterKey = "all" | "Pesi" | "Corsa" | "Cammino" | "HIIT";
+type FilterKey = "all" | "pesi" | "corsa" | "cammino" | "hiit";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all",     label: "Tutti" },
-  { key: "Pesi",    label: "Pesi" },
-  { key: "Corsa",   label: "Corsa" },
-  { key: "Cammino", label: "Cammino" },
-  { key: "HIIT",    label: "HIIT" },
+  { key: "pesi",    label: "Pesi" },
+  { key: "corsa",   label: "Corsa" },
+  { key: "cammino", label: "Cammino" },
+  { key: "hiit",    label: "HIIT" },
 ];
 
 function typeChipClass(type: string): string {
   switch (type) {
-    case "Pesi":    return "chip--accent";
-    case "Corsa":   return "chip--ok";
-    case "Cammino": return "chip--warn";
-    case "HIIT":    return "chip--danger";
+    case "pesi":    return "chip--accent";
+    case "corsa":   return "chip--ok";
+    case "cammino": return "chip--warn";
+    case "hiit":    return "chip--danger";
     default:        return "";
   }
 }
 
 function workoutIcon(type: string): string {
   switch (type) {
-    case "Pesi":    return "dumbbell";
-    case "Corsa":   return "run";
-    case "Cammino": return "heart";
-    case "HIIT":    return "flame";
+    case "pesi":    return "dumbbell";
+    case "corsa":   return "run";
+    case "cammino": return "heart";
+    case "hiit":    return "flame";
     default:        return "dumbbell";
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
+function workoutLabel(type: string): string {
+  switch (type) {
+    case "pesi": return "Pesi";
+    case "corsa": return "Corsa";
+    case "cammino": return "Cammino";
+    case "hiit": return "HIIT";
+    default: return type;
+  }
+}
+
+function formatDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const days = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
+    const months = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+    return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+  } catch {
+    return iso;
+  }
+}
 
 @customElement("monitor-workouts")
 export class MonitorWorkouts extends LitElement {
@@ -73,66 +66,63 @@ export class MonitorWorkouts extends LitElement {
 
   @state() _filter: FilterKey = "all";
 
-  private get _filteredWorkouts(): DemoWorkout[] {
-    if (this._filter === "all") return DEMO_WORKOUTS;
-    return DEMO_WORKOUTS.filter((w) => w.type === this._filter);
+  private get _workouts(): Workout[] {
+    const all = this.card.monitorState?.workouts ?? [];
+    const sorted = [...all].sort((a, b) => b.date.localeCompare(a.date));
+    if (this._filter === "all") return sorted;
+    return sorted.filter(w => w.type === this._filter);
   }
 
   render() {
-    const filtered = this._filteredWorkouts;
+    const filtered = this._workouts;
+    const all = this.card.monitorState?.workouts ?? [];
+
+    const totalSessions = all.length;
+    const totalVolume = all.reduce((s, w) => s + (w.volume_kg || 0), 0);
+    const totalDistance = all.reduce((s, w) => s + (w.distance_km || 0), 0);
 
     return html`
       <div class="col" style="gap:22px">
 
-        <!-- Header -->
         <div class="sp-between" style="flex-wrap:wrap;gap:12px">
           <div>
             <h1 class="page-title">Allenamenti</h1>
-            <p class="page-sub">Importati da Apple Health</p>
+            <p class="page-sub">${totalSessions} sessioni registrate</p>
           </div>
-          <button class="btn btn--primary" @click=${() => console.log("[monitor] Registra manualmente")}>
-            ${icon("plus", 14)} Registra manualmente
-          </button>
         </div>
 
-        <!-- Filter segmented control -->
         <div class="segmented">
-          ${FILTERS.map(
-            (f) => html`
-              <button
-                data-active="${this._filter === f.key}"
-                @click=${() => { this._filter = f.key; }}
-              >${f.label}</button>
-            `
-          )}
+          ${FILTERS.map(f => html`
+            <button data-active="${this._filter === f.key}"
+              @click=${() => { this._filter = f.key; }}>
+              ${f.label}
+            </button>
+          `)}
         </div>
 
-        <!-- Stats summary -->
         <div class="grid-3">
           <div class="kpi">
-            <div class="kpi__label">Totale sessioni</div>
-            <div class="kpi__value">147</div>
+            <div class="kpi__label">Sessioni</div>
+            <div class="kpi__value">${totalSessions}</div>
           </div>
           <div class="kpi">
             <div class="kpi__label">Volume totale</div>
-            <div class="kpi__value">184<span class="text-mute" style="font-size:14px;margin-left:4px">t</span></div>
+            <div class="kpi__value">${totalVolume >= 1000 ? fmtNum(totalVolume / 1000, 1) : fmtNum(totalVolume)}<span class="text-mute" style="font-size:14px;margin-left:4px">${totalVolume >= 1000 ? "t" : "kg"}</span></div>
           </div>
           <div class="kpi">
             <div class="kpi__label">Distanza totale</div>
-            <div class="kpi__value">412<span class="text-mute" style="font-size:14px;margin-left:4px">km</span></div>
+            <div class="kpi__value">${fmtNum(totalDistance, 1)}<span class="text-mute" style="font-size:14px;margin-left:4px">km</span></div>
           </div>
         </div>
 
-        <!-- Registro -->
         <div>
           <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Registro</h2>
           <div class="col" style="gap:12px">
-            ${filtered.map((w) => this._renderWorkoutCard(w))}
             ${filtered.length === 0
               ? html`<div class="card card--ghost" style="text-align:center;padding:28px;color:var(--text-muted)">
-                  Nessun allenamento con questo filtro
+                  Nessun allenamento${this._filter !== "all" ? " con questo filtro" : " registrato"}
                 </div>`
-              : ""}
+              : filtered.slice(0, 30).map(w => this._renderWorkoutCard(w))}
           </div>
         </div>
 
@@ -140,26 +130,25 @@ export class MonitorWorkouts extends LitElement {
     `;
   }
 
-  private _renderWorkoutCard(w: DemoWorkout) {
+  private _renderWorkoutCard(w: Workout) {
     return html`
       <div class="card">
-        <!-- Header row -->
         <div class="sp-between" style="margin-bottom:10px">
           <div class="row">
             ${icon(workoutIcon(w.type), 16)}
-            <span class="chip ${typeChipClass(w.type)}">${w.type}</span>
-            <span class="text-sm fw-600">${w.dateShort}</span>
+            <span class="chip ${typeChipClass(w.type)}">${workoutLabel(w.type)}</span>
+            <span class="text-sm fw-600">${formatDate(w.date)}</span>
           </div>
           <div class="row">
-            <span class="tag">Apple Health</span>
+            <span class="tag">${w.source || "manuale"}</span>
             <span class="chip chip--accent">+${w.points} pt</span>
           </div>
         </div>
-        <!-- Stats row -->
         <div class="row" style="gap:16px">
-          <span class="mono text-sm">${icon("clock", 13)} ${w.duration} min</span>
+          <span class="mono text-sm">${icon("clock", 13)} ${fmtNum(w.duration_min)} min</span>
           <span class="mono text-sm">${icon("flame", 13)} ${fmtNum(w.calories)} kcal</span>
-          <span class="mono text-sm">${w.metric}</span>
+          ${w.distance_km ? html`<span class="mono text-sm">${fmtNum(w.distance_km, 1)} km</span>` : ""}
+          ${w.volume_kg ? html`<span class="mono text-sm">${fmtNum(w.volume_kg)} kg vol</span>` : ""}
         </div>
       </div>
     `;

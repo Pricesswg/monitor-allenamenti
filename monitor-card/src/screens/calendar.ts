@@ -2,10 +2,10 @@ import { LitElement, html, svg } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { monitorStyles } from "../styles";
 import { icon } from "../icons";
-import { entity, fmtNum } from "../utils";
+import { fmtNum } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
+import type { Workout } from "../types";
 
-/* intensity 0-4 mapped to CSS colors */
 const INTENSITY_COLORS = [
   "var(--bg-sunken)",
   "color-mix(in srgb, var(--accent) 25%, var(--bg-sunken))",
@@ -14,29 +14,31 @@ const INTENSITY_COLORS = [
   "var(--accent)",
 ];
 
-/* Build month grid: array of weeks, each week is 7 cells (Mon=0..Sun=6) */
-function buildMonth(year: number, month: number): { day: number; intensity: number }[][] {
+function buildMonth(year: number, month: number, workoutsByDay: Map<number, number>): { day: number; intensity: number }[][] {
   const first = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0).getDate();
-  /* JS getDay: 0=Sun..6=Sat -> shift to Mon=0..Sun=6 */
   const startDow = (first.getDay() + 6) % 7;
+  const today = new Date().getDate();
+  const thisMonth = new Date().getMonth() === month && new Date().getFullYear() === year;
 
   const weeks: { day: number; intensity: number }[][] = [];
   let week: { day: number; intensity: number }[] = [];
 
-  /* pad leading blanks */
   for (let i = 0; i < startDow; i++) week.push({ day: 0, intensity: -1 });
 
   for (let d = 1; d <= lastDay; d++) {
-    /* demo intensities: some pattern */
-    const demo = d % 3 === 0 ? 0 : d % 7 === 0 ? 4 : d % 5 === 0 ? 3 : d % 2 === 0 ? 2 : 1;
-    week.push({ day: d, intensity: d > new Date().getDate() ? -1 : demo });
+    if (thisMonth && d > today) {
+      week.push({ day: d, intensity: -1 });
+    } else {
+      const count = workoutsByDay.get(d) || 0;
+      const intensity = count === 0 ? 0 : count === 1 ? 1 : count === 2 ? 2 : count === 3 ? 3 : 4;
+      week.push({ day: d, intensity });
+    }
     if (week.length === 7) {
       weeks.push(week);
       week = [];
     }
   }
-  /* pad trailing */
   if (week.length > 0) {
     while (week.length < 7) week.push({ day: 0, intensity: -1 });
     weeks.push(week);
@@ -44,7 +46,6 @@ function buildMonth(year: number, month: number): { day: number; intensity: numb
   return weeks;
 }
 
-/* Streak ring SVG */
 function streakRing(current: number, best: number) {
   const pct = best > 0 ? Math.min(1, current / best) : 0;
   const r = 40;
@@ -70,32 +71,46 @@ export class MonitorCalendar extends LitElement {
   @property({ attribute: false, hasChanged: () => true }) card!: MonitorAllenamentiCard;
 
   render() {
-    const hass = this.card.hass;
+    const ms = this.card.monitorState;
+    const workouts: Workout[] = ms?.workouts ?? [];
 
-    const streak     = parseInt(entity(hass, "streak") || "12", 10);
-    const bestStreak = 23;
-
-    /* summary stats (demo) */
-    const sessioni = 18;
-    const riposi   = 4;
-    const volumeKg = 28400;
-    const kmTotali = 32.5;
+    const streak     = ms?.streak ?? 0;
+    const bestStreak = ms?.streak_best ?? 0;
 
     const now = new Date();
+    const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    const monthWorkouts = workouts.filter(w => w.date?.startsWith(monthPrefix));
+    const sessioni = monthWorkouts.length;
+    const volumeKg = monthWorkouts.reduce((s, w) => s + (w.volume_kg || 0), 0);
+    const kmTotali = monthWorkouts.reduce((s, w) => s + (w.distance_km || 0), 0);
+
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysWithWorkout = new Set(monthWorkouts.map(w => {
+      try { return new Date(w.date).getDate(); } catch { return 0; }
+    }));
+    const riposi = Math.min(now.getDate(), daysInMonth) - daysWithWorkout.size;
+
+    const workoutsByDay = new Map<number, number>();
+    for (const w of monthWorkouts) {
+      try {
+        const d = new Date(w.date).getDate();
+        workoutsByDay.set(d, (workoutsByDay.get(d) || 0) + 1);
+      } catch { /* skip */ }
+    }
+
     const monthName = now.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
-    const weeks = buildMonth(now.getFullYear(), now.getMonth());
+    const weeks = buildMonth(now.getFullYear(), now.getMonth(), workoutsByDay);
     const dayLabels = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 
     return html`
       <div class="col" style="gap:22px">
 
-        <!-- Header -->
         <div>
           <h1 class="page-title">Calendario</h1>
           <p class="page-sub">Streak: ${streak} giorni · Best: ${bestStreak}</p>
         </div>
 
-        <!-- Summary card with streak ring -->
         <div class="card">
           <div class="row" style="gap:24px;flex-wrap:wrap;align-items:flex-start">
             <div class="ring-wrap" style="flex-shrink:0">
@@ -108,7 +123,7 @@ export class MonitorCalendar extends LitElement {
               </div>
               <div>
                 <div class="text-mute text-xs" style="margin-bottom:2px">Riposi</div>
-                <div class="mono fw-700" style="font-size:20px">${riposi}</div>
+                <div class="mono fw-700" style="font-size:20px">${Math.max(0, riposi)}</div>
               </div>
               <div>
                 <div class="text-mute text-xs" style="margin-bottom:2px">Volume</div>
@@ -122,17 +137,14 @@ export class MonitorCalendar extends LitElement {
           </div>
         </div>
 
-        <!-- Monthly calendar -->
         <div class="card">
           <div class="card__header">
             <h3 class="card__title" style="text-transform:capitalize">${monthName}</h3>
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
-            <!-- Day headers -->
             ${dayLabels.map(d => html`
               <div style="text-align:center;font-size:11px;color:var(--text-muted);font-weight:600;padding-bottom:6px">${d}</div>
             `)}
-            <!-- Day cells -->
             ${weeks.flatMap(w => w.map(cell => {
               if (cell.day === 0) return html`<div></div>`;
               const bg = cell.intensity >= 0 ? INTENSITY_COLORS[cell.intensity] : "var(--bg-soft)";
@@ -147,29 +159,12 @@ export class MonitorCalendar extends LitElement {
                 ">${cell.day}</div>`;
             }))}
           </div>
-          <!-- Legend -->
           <div class="row" style="margin-top:14px;gap:6px;justify-content:flex-end">
             <span class="text-xs text-mute">Meno</span>
             ${INTENSITY_COLORS.map(c => html`
               <div style="width:14px;height:14px;border-radius:3px;background:${c};border:1px solid var(--border-soft)"></div>
             `)}
             <span class="text-xs text-mute">Più</span>
-          </div>
-        </div>
-
-        <!-- Prossimo allenamento -->
-        <div class="card">
-          <div class="card__header">
-            <div style="color:var(--accent)">${icon("calendar", 18)}</div>
-            <div>
-              <h3 class="card__title">Prossimo allenamento</h3>
-              <div class="card__sub">Domani · Upper Body</div>
-            </div>
-          </div>
-          <div class="row" style="gap:8px">
-            <span class="chip">${icon("dumbbell", 11)} Pesi</span>
-            <span class="chip">${icon("clock", 11)} ~60 min</span>
-            <span class="chip chip--xp">${icon("bolt", 11)} ~120 XP</span>
           </div>
         </div>
 

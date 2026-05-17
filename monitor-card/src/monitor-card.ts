@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { monitorStyles, monitorTokens } from "./styles";
 import { icon } from "./icons";
-import type { HomeAssistant, MonitorCardConfig, Screen } from "./types";
+import type { HomeAssistant, MonitorCardConfig, Screen, MonitorState } from "./types";
 import { entity } from "./utils";
 
 import "./screens/overview";
@@ -13,7 +13,7 @@ import "./screens/stats";
 import "./screens/settings";
 import "./editor";
 
-const CARD_VERSION = "1.1.0";
+const CARD_VERSION = "1.2.0";
 
 const TITLE_MAP: Record<Screen, [string, string]> = {
   overview: ["Panoramica", "monitor / panoramica"],
@@ -35,9 +35,12 @@ export class MonitorAllenamentiCard extends LitElement {
   @state() _mobile = false;
   @state() _drawerOpen = false;
   @state() _desktopCollapsed = false;
+  @state() monitorState: MonitorState | null = null;
 
   private _resizeObserver?: ResizeObserver;
   private _screenInitialised = false;
+  private _stateFetched = false;
+  private _eventUnsub?: () => void;
 
   setConfig(config: MonitorCardConfig) {
     this.config = config || ({} as MonitorCardConfig);
@@ -103,10 +106,37 @@ export class MonitorAllenamentiCard extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     this._resizeObserver?.disconnect();
+    this._eventUnsub?.();
+    this._eventUnsub = undefined;
   }
 
   firstUpdated() {
     this._checkPanelMode();
+    this._fetchState();
+  }
+
+  async _fetchState() {
+    if (!this.hass?.callWS) return;
+    try {
+      this.monitorState = await this.hass.callWS<MonitorState>({
+        type: "monitor_allenamenti/get_state",
+      });
+      this._stateFetched = true;
+    } catch {
+      if (!this._stateFetched) this.monitorState = null;
+    }
+  }
+
+  updated(changed: Map<string, unknown>) {
+    super.updated(changed);
+    if (changed.has("hass") && !this._stateFetched) {
+      this._fetchState();
+    }
+    if (changed.has("hass") && this.hass && !this._eventUnsub) {
+      this.hass.connection
+        .subscribeEvents(() => this._fetchState(), "monitor_allenamenti.workout_logged")
+        .then((unsub) => { this._eventUnsub = unsub; });
+    }
   }
 
   render() {
