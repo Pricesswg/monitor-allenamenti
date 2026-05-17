@@ -1,0 +1,7 @@
+{
+  "name": "Monitor Allenamenti",
+  "homeassistant": "2024.1.0",
+  "render_readme": true,
+  "country": ["IT"],
+  "iot_class": "local_polling"
+}

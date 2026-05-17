@@ -1,0 +1,13 @@
+{
+  "domain": "monitor_allenamenti",
+  "name": "Monitor Allenamenti",
+  "codeowners": ["@Pricesswg"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Pricesswg/monitor-allenamenti",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Pricesswg/monitor-allenamenti/issues",
+  "requirements": [],
+  "version": "1.0.0",
+  "after_dependencies": ["withings"]
+}

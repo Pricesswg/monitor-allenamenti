@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monitor Allenamenti — Dev Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #f0f0f0; font-family: Inter, sans-serif; padding: 20px; }
+    monitor-allenamenti-card { display: block; height: calc(100vh - 40px); }
+  </style>
+</head>
+<body>
+  <monitor-allenamenti-card></monitor-allenamenti-card>
+  <script type="module">
+    // Mock hass object for dev preview
+    const mockHass = {
+      states: {
+        "sensor.monitor_allenamenti_punti": { entity_id: "sensor.monitor_allenamenti_punti", state: "2840", attributes: {}, last_changed: "", last_updated: "" },
+        "sensor.monitor_allenamenti_streak": { entity_id: "sensor.monitor_allenamenti_streak", state: "12", attributes: {}, last_changed: "", last_updated: "" },
+        "sensor.monitor_allenamenti_streak_best": { entity_id: "sensor.monitor_allenamenti_streak_best", state: "23", attributes: {}, last_changed: "", last_updated: "" },
+        "sensor.monitor_allenamenti_allenamenti_mese": { entity_id: "sensor.monitor_allenamenti_allenamenti_mese", state: "14", attributes: {}, last_changed: "", last_updated: "" },
+        "sensor.monitor_allenamenti_ultimo_allenamento": { entity_id: "sensor.monitor_allenamenti_ultimo_allenamento", state: "Pesi — 52 min", attributes: { type: "pesi", duration_min: 52, calories: 320, volume_kg: 4200, date: "2026-05-15" }, last_changed: "", last_updated: "" },
+        "sensor.withings_peso": { entity_id: "sensor.withings_peso", state: "114.517", attributes: { unit_of_measurement: "kg", device_class: "weight" }, last_changed: "", last_updated: "" },
+        "sensor.withings_altezza": { entity_id: "sensor.withings_altezza", state: "1.85", attributes: { unit_of_measurement: "m", device_class: "distance" }, last_changed: "", last_updated: "" },
+        "sensor.withings_obiettivo_di_peso": { entity_id: "sensor.withings_obiettivo_di_peso", state: "95.0", attributes: { unit_of_measurement: "kg", device_class: "weight" }, last_changed: "", last_updated: "" },
+        "sensor.withings_passi_oggi": { entity_id: "sensor.withings_passi_oggi", state: "1552", attributes: { unit_of_measurement: "steps" }, last_changed: "", last_updated: "" },
+        "sensor.withings_calorie_attive_bruciate_oggi": { entity_id: "sensor.withings_calorie_attive_bruciate_oggi", state: "47.56", attributes: { unit_of_measurement: "calories" }, last_changed: "", last_updated: "" },
+        "sensor.withings_calorie_totali_bruciate_oggi": { entity_id: "sensor.withings_calorie_totali_bruciate_oggi", state: "1431.59", attributes: { unit_of_measurement: "calories" }, last_changed: "", last_updated: "" },
+        "sensor.withings_distanza_percorsa_oggi": { entity_id: "sensor.withings_distanza_percorsa_oggi", state: "1271.7", attributes: { unit_of_measurement: "m", device_class: "distance" }, last_changed: "", last_updated: "" },
+        "sensor.withings_attivita_intensa_oggi": { entity_id: "sensor.withings_attivita_intensa_oggi", state: "0.2", attributes: { unit_of_measurement: "min", device_class: "duration" }, last_changed: "", last_updated: "" },
+        "sensor.withings_attivita_moderata_oggi": { entity_id: "sensor.withings_attivita_moderata_oggi", state: "1.12", attributes: { unit_of_measurement: "min", device_class: "duration" }, last_changed: "", last_updated: "" },
+        "sensor.withings_attivita_leggera_oggi": { entity_id: "sensor.withings_attivita_leggera_oggi", state: "94.72", attributes: { unit_of_measurement: "min", device_class: "duration" }, last_changed: "", last_updated: "" },
+        "sensor.withings_tempo_di_attivita_oggi": { entity_id: "sensor.withings_tempo_di_attivita_oggi", state: "0.022", attributes: { unit_of_measurement: "h", device_class: "duration" }, last_changed: "", last_updated: "" },
+        "sensor.withings_variazione_dell_elevazione_oggi": { entity_id: "sensor.withings_variazione_dell_elevazione_oggi", state: "6", attributes: { unit_of_measurement: "m", device_class: "distance" }, last_changed: "", last_updated: "" },
+      },
+      callService: async (domain, service, data) => {
+        console.log(`[mock] ${domain}.${service}`, data);
+      },
+      connection: {
+        subscribeEvents: async (cb, type) => {
+          console.log(`[mock] subscribe ${type}`);
+          return () => {};
+        }
+      },
+      language: "it",
+    };
+
+    import("../../custom_components/monitor_allenamenti/www/monitor-allenamenti-card.js?" + Date.now()).then(() => {
+      const card = document.querySelector("monitor-allenamenti-card");
+      card.setConfig({ type: "custom:monitor-allenamenti-card" });
+      card.hass = mockHass;
+    }).catch(err => {
+      document.body.innerHTML = `<pre style="color:red;padding:20px">Build first: cd monitor-card && npm run build\n\n${err}</pre>`;
+    });
+  </script>
+</body>
+</html>

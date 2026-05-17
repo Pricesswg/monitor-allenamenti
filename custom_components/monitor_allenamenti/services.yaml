@@ -1,0 +1,84 @@
+log_workout:
+  name: Log Workout
+  description: Registra un allenamento completato
+  fields:
+    type:
+      name: Tipo
+      description: Tipo di allenamento
+      required: true
+      selector:
+        select:
+          options:
+            - pesi
+            - corsa
+            - cammino
+            - hiit
+    duration_min:
+      name: Durata (min)
+      description: Durata in minuti
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 600
+          unit_of_measurement: min
+    calories:
+      name: Calorie
+      description: Calorie bruciate
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 5000
+          unit_of_measurement: kcal
+    distance_km:
+      name: Distanza (km)
+      description: Distanza percorsa
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.1
+          unit_of_measurement: km
+    volume_kg:
+      name: Volume (kg)
+      description: Volume totale pesi sollevati
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 50000
+          step: 0.5
+          unit_of_measurement: kg
+    sets:
+      name: Serie
+      description: Numero di serie
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+    date:
+      name: Data
+      description: "Data e ora (ISO format, default: adesso)"
+      required: false
+      selector:
+        text:
+    source:
+      name: Sorgente
+      description: "Origine del dato (default: apple_health)"
+      required: false
+      selector:
+        text:
+
+import_apple_health:
+  name: Import Apple Health
+  description: Importa allenamenti da un file di esportazione Apple Health (.xml o .zip)
+  fields:
+    file_path:
+      name: Percorso file
+      description: "Percorso del file export Apple Health (es: /config/export.xml o /config/esporta.zip)"
+      required: true
+      selector:
+        text:

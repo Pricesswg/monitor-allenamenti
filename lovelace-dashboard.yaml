@@ -1,0 +1,11 @@
+# Monitor Allenamenti — Lovelace Dashboard Configuration
+# Single card, Chronos-style app shell with sidebar navigation
+# Requires: monitor-allenamenti-card.js loaded as resource
+
+title: Monitor Allenamenti
+views:
+  - title: Monitor
+    path: monitor-allenamenti
+    type: panel
+    cards:
+      - type: custom:monitor-allenamenti-card
