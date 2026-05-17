@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import logging
 import shutil
 import uuid
@@ -10,10 +9,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import voluptuous as vol
+from aiohttp import web
 
 from homeassistant.components import websocket_api
 from homeassistant.components.frontend import add_extra_js_url
-from homeassistant.components.http import StaticPathConfig
+from homeassistant.components.http import HomeAssistantView, StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -56,6 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _register_services(hass, coordinator)
     _register_websocket_api(hass)
+    hass.http.register_view(AppleHealthUploadView)
     await _register_frontend_card(hass)
 
     # Periodic: weight polling + streak check every 5 min
@@ -153,71 +154,6 @@ def _register_websocket_api(hass: HomeAssistant) -> None:
 
     websocket_api.async_register_command(hass, ws_get_state)
 
-    @websocket_api.websocket_command(
-        {
-            vol.Required("type"): f"{DOMAIN}/import_apple_health_upload",
-            vol.Required("data"): str,
-            vol.Required("filename"): str,
-        }
-    )
-    @websocket_api.async_response
-    async def ws_import_upload(hass, connection, msg):
-        try:
-            raw = base64.b64decode(msg["data"])
-        except Exception:
-            connection.send_error(msg["id"], "invalid_data", "Base64 non valido")
-            return
-
-        filename = msg["filename"].lower()
-        try:
-            workouts = await hass.async_add_executor_job(
-                parse_apple_health_bytes, raw, filename
-            )
-        except (FileNotFoundError, ValueError) as err:
-            connection.send_error(msg["id"], "parse_error", str(err))
-            return
-
-        coordinator = None
-        for c in hass.data.get(DOMAIN, {}).values():
-            if isinstance(c, MonitorAllenamentiCoordinator):
-                coordinator = c
-                break
-
-        if not coordinator:
-            connection.send_error(msg["id"], "no_coordinator", "Integrazione non pronta")
-            return
-
-        imported = 0
-        skipped = 0
-        existing_keys = {
-            f"{w.get('date')}_{w.get('type')}"
-            for w in coordinator.state.get("workouts", [])
-        }
-
-        for w in workouts:
-            dup_key = f"{w['date']}_{w['type']}"
-            if dup_key in existing_keys:
-                skipped += 1
-                continue
-            existing_keys.add(dup_key)
-
-            await coordinator.log_workout(
-                workout_type=w["type"],
-                duration_min=w["duration_min"],
-                calories=w["calories"],
-                distance_km=w.get("distance_km", 0.0),
-                date=w.get("date"),
-                source="apple_health",
-            )
-            imported += 1
-
-        connection.send_result(msg["id"], {
-            "imported": imported,
-            "skipped": skipped,
-        })
-
-    websocket_api.async_register_command(hass, ws_import_upload)
-
 
 def _register_services(hass: HomeAssistant, coordinator: MonitorAllenamentiCoordinator):
     """Register services."""
@@ -308,6 +244,84 @@ def _register_services(hass: HomeAssistant, coordinator: MonitorAllenamentiCoord
             {vol.Required("file_path"): cv.string}
         ),
     )
+
+
+class AppleHealthUploadView(HomeAssistantView):
+    """Handle Apple Health file uploads via HTTP POST."""
+
+    url = f"/api/{DOMAIN}/upload"
+    name = f"api:{DOMAIN}:upload"
+    requires_auth = True
+
+    async def post(self, request: web.Request) -> web.Response:
+        hass = request.app["hass"]
+
+        coordinator = None
+        for c in hass.data.get(DOMAIN, {}).values():
+            if isinstance(c, MonitorAllenamentiCoordinator):
+                coordinator = c
+                break
+        if not coordinator:
+            return self.json({"error": "Integrazione non pronta"}, status_code=503)
+
+        try:
+            reader = await request.multipart()
+            field = await reader.next()
+            if not field or field.name != "file":
+                return self.json({"error": "Nessun file ricevuto"}, status_code=400)
+
+            filename = (field.filename or "export.xml").lower()
+            chunks = []
+            total = 0
+            while True:
+                chunk = await field.read_chunk(1024 * 1024)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > 512 * 1024 * 1024:
+                    return self.json({"error": "File troppo grande (max 512 MB)"}, status_code=413)
+                chunks.append(chunk)
+
+            raw = b"".join(chunks)
+        except Exception as err:
+            _LOGGER.error("Upload read error: %s", err)
+            return self.json({"error": "Errore lettura file"}, status_code=400)
+
+        try:
+            workouts = await hass.async_add_executor_job(
+                parse_apple_health_bytes, raw, filename
+            )
+        except (FileNotFoundError, ValueError) as err:
+            return self.json({"error": str(err)}, status_code=422)
+        except Exception as err:
+            _LOGGER.exception("Parse error")
+            return self.json({"error": f"Errore parsing: {err}"}, status_code=500)
+
+        imported = 0
+        skipped = 0
+        existing_keys = {
+            f"{w.get('date')}_{w.get('type')}"
+            for w in coordinator.state.get("workouts", [])
+        }
+
+        for w in workouts:
+            dup_key = f"{w['date']}_{w['type']}"
+            if dup_key in existing_keys:
+                skipped += 1
+                continue
+            existing_keys.add(dup_key)
+
+            await coordinator.log_workout(
+                workout_type=w["type"],
+                duration_min=w["duration_min"],
+                calories=w["calories"],
+                distance_km=w.get("distance_km", 0.0),
+                date=w.get("date"),
+                source="apple_health",
+            )
+            imported += 1
+
+        return self.json({"imported": imported, "skipped": skipped})
 
 
 class MonitorAllenamentiCoordinator:

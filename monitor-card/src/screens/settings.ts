@@ -240,19 +240,29 @@ export class MonitorSettings extends LitElement {
     this._importStatus = "loading";
     this._importMessage = "";
     try {
-      const buffer = await this._selectedFile.arrayBuffer();
-      const base64 = btoa(
-        new Uint8Array(buffer).reduce((s, b) => s + String.fromCharCode(b), "")
-      );
-      const result = await this.hass.callWS<{ imported: number; skipped: number }>({
-        type: "monitor_allenamenti/import_apple_health_upload",
-        data: base64,
-        filename: this._selectedFile.name,
+      const formData = new FormData();
+      formData.append("file", this._selectedFile);
+
+      const token = (this.hass as any).auth?.data?.access_token;
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const resp = await fetch("/api/monitor_allenamenti/upload", {
+        method: "POST",
+        headers,
+        body: formData,
       });
+
+      const result = await resp.json();
+      if (!resp.ok) {
+        throw new Error(result.error || `HTTP ${resp.status}`);
+      }
+
       this._importStatus = "done";
       this._importMessage = `Importati ${result.imported} allenamenti` +
         (result.skipped > 0 ? `, ${result.skipped} duplicati saltati` : "") + ".";
       this._selectedFile = null;
+      this._importFileName = "";
     } catch (err: any) {
       this._importStatus = "error";
       this._importMessage = err?.message || "Errore durante l'importazione.";

@@ -114,6 +114,15 @@ def parse_apple_health_bytes(data: bytes, filename: str) -> list[dict]:
         raise ValueError(f"Formato non supportato: usa .xml o .zip")
 
 
+def _safe_float(val: str | None, fallback: float = 0.0) -> float:
+    if not val:
+        return fallback
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return fallback
+
+
 def _iter_workouts(xml_stream) -> list[dict]:
     """Stream-parse XML and extract Workout elements."""
     workouts = []
@@ -131,27 +140,22 @@ def _iter_workouts(xml_stream) -> list[dict]:
             elem.clear()
             continue
 
-        try:
-            duration = float(elem.get("duration", "0"))
-        except (ValueError, TypeError):
-            duration = 0.0
+        duration = _safe_float(elem.get("duration"))
 
-        try:
-            calories = float(elem.get("totalEnergyBurned", "0"))
-        except (ValueError, TypeError):
-            calories = 0.0
+        # Calories/distance: try direct attributes first (older iOS),
+        # then fall back to WorkoutStatistics child elements (iOS 16+)
+        calories = _safe_float(elem.get("totalEnergyBurned"))
+        distance = _safe_float(elem.get("totalDistance"))
 
-        try:
-            distance = float(elem.get("totalDistance", "0"))
-        except (ValueError, TypeError):
-            distance = 0.0
+        for stat in elem.findall("WorkoutStatistics"):
+            stat_type = stat.get("type", "")
+            if stat_type == "HKQuantityTypeIdentifierActiveEnergyBurned" and calories == 0:
+                calories = _safe_float(stat.get("sum"))
+            elif stat_type == "HKQuantityTypeIdentifierDistanceWalkingRunning" and distance == 0:
+                distance = _safe_float(stat.get("sum"))
 
         start_date = elem.get("startDate", "")
-        date_iso = ""
-        if start_date:
-            date_iso = start_date.replace(" +", "+").replace(" -", "-")
-            if len(start_date) >= 10:
-                date_iso = start_date[:10]
+        date_iso = start_date[:10] if len(start_date) >= 10 else ""
 
         workout = {
             "type": our_type,
