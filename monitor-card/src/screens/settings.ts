@@ -2,7 +2,6 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { monitorStyles } from "../styles";
 import { icon } from "../icons";
-import { callMonitorService } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
 
 /* -- Workout color config ------------------------------------------------ */
@@ -59,9 +58,9 @@ export class MonitorSettings extends LitElement {
   @property({ attribute: false, hasChanged: () => true })
   card!: MonitorAllenamentiCard;
 
-  @state() private _importPath = "/config/esporta.zip";
   @state() private _importStatus: "idle" | "loading" | "done" | "error" = "idle";
   @state() private _importMessage = "";
+  @state() private _importFileName = "";
 
   private get hass() {
     return this.card.hass;
@@ -189,18 +188,19 @@ export class MonitorSettings extends LitElement {
             <div>
               <div class="fw-600">Importa da file</div>
               <p class="text-soft text-sm" style="margin:2px 0 0">
-                Esporta i dati da Apple Health (.xml o .zip) e caricali in <code style="font-family:var(--font-mono);font-size:11px;background:var(--muted);padding:2px 5px;border-radius:4px">/config/</code> di HA
+                Esporta i dati da Apple Health (.xml o .zip) e caricali direttamente dal browser.
               </p>
             </div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
-            <input class="settings-input" type="text" style="max-width:none;flex:1"
-              .value=${this._importPath}
-              @input=${(e: Event) => { this._importPath = (e.target as HTMLInputElement).value; }}
-              placeholder="/config/esporta.zip"
-            />
+            <label class="btn btn--ghost" style="cursor:pointer;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              ${icon("upload", 14)}
+              <span style="margin-left:6px">${this._importFileName || "Scegli file .zip o .xml"}</span>
+              <input type="file" accept=".zip,.xml" style="display:none"
+                @change=${this._handleFileSelect} />
+            </label>
             <button class="btn btn--primary" style="white-space:nowrap;min-width:90px"
-              ?disabled=${isLoading}
+              ?disabled=${isLoading || !this._importFileName}
               @click=${this._handleImport}>
               ${isLoading ? "Importo..." : "Importa"}
             </button>
@@ -222,16 +222,37 @@ export class MonitorSettings extends LitElement {
     `;
   }
 
+  private _selectedFile: File | null = null;
+
+  private _handleFileSelect(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      this._selectedFile = file;
+      this._importFileName = file.name;
+      this._importStatus = "idle";
+      this._importMessage = "";
+    }
+  }
+
   private async _handleImport() {
-    if (!this._importPath.trim()) return;
+    if (!this._selectedFile) return;
     this._importStatus = "loading";
     this._importMessage = "";
     try {
-      await callMonitorService(this.hass, "import_apple_health", {
-        file_path: this._importPath.trim(),
+      const buffer = await this._selectedFile.arrayBuffer();
+      const base64 = btoa(
+        new Uint8Array(buffer).reduce((s, b) => s + String.fromCharCode(b), "")
+      );
+      const result = await this.hass.callWS<{ imported: number; skipped: number }>({
+        type: "monitor_allenamenti/import_apple_health_upload",
+        data: base64,
+        filename: this._selectedFile.name,
       });
       this._importStatus = "done";
-      this._importMessage = "Importazione completata. Controlla gli allenamenti.";
+      this._importMessage = `Importati ${result.imported} allenamenti` +
+        (result.skipped > 0 ? `, ${result.skipped} duplicati saltati` : "") + ".";
+      this._selectedFile = null;
     } catch (err: any) {
       this._importStatus = "error";
       this._importMessage = err?.message || "Errore durante l'importazione.";

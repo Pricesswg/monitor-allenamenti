@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import logging
 import shutil
 import uuid
@@ -31,7 +32,7 @@ from .const import (
     SERVICE_LOG_WORKOUT,
     SERVICE_IMPORT_APPLE_HEALTH,
 )
-from .apple_health import parse_apple_health_export
+from .apple_health import parse_apple_health_export, parse_apple_health_bytes
 from .gamification import calculate_points, update_streak, detect_pr
 from .models import default_state
 
@@ -151,6 +152,71 @@ def _register_websocket_api(hass: HomeAssistant) -> None:
         connection.send_result(msg["id"], {})
 
     websocket_api.async_register_command(hass, ws_get_state)
+
+    @websocket_api.websocket_command(
+        {
+            vol.Required("type"): f"{DOMAIN}/import_apple_health_upload",
+            vol.Required("data"): str,
+            vol.Required("filename"): str,
+        }
+    )
+    @websocket_api.async_response
+    async def ws_import_upload(hass, connection, msg):
+        try:
+            raw = base64.b64decode(msg["data"])
+        except Exception:
+            connection.send_error(msg["id"], "invalid_data", "Base64 non valido")
+            return
+
+        filename = msg["filename"].lower()
+        try:
+            workouts = await hass.async_add_executor_job(
+                parse_apple_health_bytes, raw, filename
+            )
+        except (FileNotFoundError, ValueError) as err:
+            connection.send_error(msg["id"], "parse_error", str(err))
+            return
+
+        coordinator = None
+        for c in hass.data.get(DOMAIN, {}).values():
+            if isinstance(c, MonitorAllenamentiCoordinator):
+                coordinator = c
+                break
+
+        if not coordinator:
+            connection.send_error(msg["id"], "no_coordinator", "Integrazione non pronta")
+            return
+
+        imported = 0
+        skipped = 0
+        existing_keys = {
+            f"{w.get('date')}_{w.get('type')}"
+            for w in coordinator.state.get("workouts", [])
+        }
+
+        for w in workouts:
+            dup_key = f"{w['date']}_{w['type']}"
+            if dup_key in existing_keys:
+                skipped += 1
+                continue
+            existing_keys.add(dup_key)
+
+            await coordinator.log_workout(
+                workout_type=w["type"],
+                duration_min=w["duration_min"],
+                calories=w["calories"],
+                distance_km=w.get("distance_km", 0.0),
+                date=w.get("date"),
+                source="apple_health",
+            )
+            imported += 1
+
+        connection.send_result(msg["id"], {
+            "imported": imported,
+            "skipped": skipped,
+        })
+
+    websocket_api.async_register_command(hass, ws_import_upload)
 
 
 def _register_services(hass: HomeAssistant, coordinator: MonitorAllenamentiCoordinator):
