@@ -254,6 +254,25 @@ export class MonitorSettings extends LitElement {
         body: formData,
       });
 
+      // Handle non-JSON responses (404 plain text, 502 HTML proxy errors, etc.)
+      const contentType = resp.headers.get("content-type") || "";
+      if (!contentType.toLowerCase().includes("application/json")) {
+        if (resp.status === 404) {
+          throw new Error(
+            "Endpoint upload non disponibile. Aggiorna l'integrazione " +
+            "Monitor Allenamenti e RIAVVIA Home Assistant."
+          );
+        }
+        if (resp.status === 401 || resp.status === 403) {
+          throw new Error("Autenticazione fallita. Ricarica la pagina e riprova.");
+        }
+        if (resp.status === 413) {
+          throw new Error("File troppo grande per Home Assistant.");
+        }
+        const text = (await resp.text()).slice(0, 200);
+        throw new Error(`Errore server ${resp.status}: ${text || resp.statusText}`);
+      }
+
       const result = await resp.json();
       if (!resp.ok) {
         throw new Error(result.error || `HTTP ${resp.status}`);

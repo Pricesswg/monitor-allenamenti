@@ -1,7 +1,7 @@
 """Constants for Monitor Allenamenti."""
 
 DOMAIN = "monitor_allenamenti"
-VERSION = "1.4.1"
+VERSION = "1.4.2"
 STORAGE_KEY = "monitor_allenamenti_state"
 STORAGE_VERSION = 1
 
