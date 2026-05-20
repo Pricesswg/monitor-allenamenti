@@ -90,18 +90,29 @@ export class MonitorStats extends LitElement {
   }
 
   private _renderCorrelation(workouts: Workout[], weightHistory: WeightRecord[]) {
-    const pesoWorkouts = workouts
-      .filter(w => w.volume_kg && w.volume_kg > 0)
-      .slice(-20);
+    // Use volume_kg if available (manual logging), otherwise fall back to calories
+    // — Apple Health imports don't track volume but always have calories.
+    const hasVolume = workouts.some(w => w.volume_kg && w.volume_kg > 0);
+    const metricKey: "volume_kg" | "calories" = hasVolume ? "volume_kg" : "calories";
+    const metricLabel = hasVolume ? "Volume (kg)" : "Calorie (kcal)";
+    const metricDesc = hasVolume ? "Peso corporeo vs Volume allenamento" : "Peso corporeo vs Calorie bruciate";
 
-    if (pesoWorkouts.length < 3 || weightHistory.length < 3) {
+    const filtered = workouts
+      .filter(w => {
+        const v = (w as any)[metricKey];
+        return v && v > 0;
+      })
+      .slice(-30);
+
+    if (filtered.length < 3 || weightHistory.length < 3) {
       return html`
         <div class="card">
           <div class="card__header">
             <h3 class="card__title">Correlazione</h3>
           </div>
           <div style="padding:20px;text-align:center;color:var(--text-muted)">
-            Servono più dati per calcolare la correlazione peso/volume
+            Servono almeno 3 allenamenti e 3 misurazioni peso negli stessi giorni
+            per calcolare la correlazione.
           </div>
         </div>
       `;
@@ -113,18 +124,39 @@ export class MonitorStats extends LitElement {
     const plotW = W - pad * 2;
     const plotH = H - pad * 2;
 
+    // Build a weight-by-date map for O(1) lookup, fallback to nearest day within ±3
+    const weightMap = new Map<string, number>();
+    for (const r of weightHistory) weightMap.set(r.date, r.weight);
+    const findNearestWeight = (dateStr: string): number | null => {
+      if (weightMap.has(dateStr)) return weightMap.get(dateStr)!;
+      const target = new Date(dateStr);
+      for (let delta = 1; delta <= 3; delta++) {
+        for (const sign of [-1, 1]) {
+          const d = new Date(target);
+          d.setDate(d.getDate() + sign * delta);
+          const k = d.toISOString().slice(0, 10);
+          if (weightMap.has(k)) return weightMap.get(k)!;
+        }
+      }
+      return null;
+    };
+
     const points: [number, number][] = [];
-    for (const w of pesoWorkouts) {
-      const dateStr = w.date.slice(0, 10);
-      const wh = weightHistory.find(r => r.date === dateStr);
-      if (wh) points.push([wh.weight, w.volume_kg!]);
+    for (const w of filtered) {
+      const dateStr = (w.date || "").slice(0, 10);
+      const wt = findNearestWeight(dateStr);
+      const metricVal = (w as any)[metricKey] as number;
+      if (wt !== null && metricVal > 0) points.push([wt, metricVal]);
     }
 
     if (points.length < 3) {
       return html`
         <div class="card">
           <div class="card__header"><h3 class="card__title">Correlazione</h3></div>
-          <div style="padding:20px;text-align:center;color:var(--text-muted)">Dati insufficienti</div>
+          <div style="padding:20px;text-align:center;color:var(--text-muted)">
+            Solo ${points.length} punti con sia peso che allenamento nello stesso periodo.<br/>
+            <span class="text-xs">Continua a usare la bilancia ogni giorno per popolare lo storico.</span>
+          </div>
         </div>
       `;
     }
@@ -160,19 +192,19 @@ export class MonitorStats extends LitElement {
         <div class="card__header">
           <div style="flex:1">
             <h3 class="card__title">Correlazione</h3>
-            <div class="card__sub">Peso corporeo vs Volume allenamento</div>
+            <div class="card__sub">${metricDesc}</div>
           </div>
           <span class="chip chip--ok">${strength}</span>
         </div>
         <div class="sp-between" style="margin-bottom:10px">
-          <span class="text-sm text-soft">Coefficiente r</span>
+          <span class="text-sm text-soft">Coefficiente r (${points.length} punti)</span>
           <span class="mono fw-700" style="font-size:22px;color:${r < 0 ? "var(--ok)" : "var(--warn)"}">${r.toFixed(2)}</span>
         </div>
         <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-height:200px">
           <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${pad + plotH}" stroke="var(--border)" stroke-width="1"/>
           <line x1="${pad}" y1="${pad + plotH}" x2="${pad + plotW}" y2="${pad + plotH}" stroke="var(--border)" stroke-width="1"/>
           <text x="${pad + plotW / 2}" y="${H - 4}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">Peso (kg)</text>
-          <text x="8" y="${pad + plotH / 2}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)" transform="rotate(-90 8 ${pad + plotH / 2})">Volume (kg)</text>
+          <text x="8" y="${pad + plotH / 2}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)" transform="rotate(-90 8 ${pad + plotH / 2})">${metricLabel}</text>
           ${points.map(([x, y]) => svg`
             <circle cx="${sx(x)}" cy="${sy(y)}" r="4" fill="var(--accent)" opacity="0.7"/>
           `)}

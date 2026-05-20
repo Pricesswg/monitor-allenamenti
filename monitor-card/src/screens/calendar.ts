@@ -1,5 +1,5 @@
 import { LitElement, html, svg } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { monitorStyles } from "../styles";
 import { icon } from "../icons";
 import { fmtNum } from "../utils";
@@ -18,8 +18,10 @@ function buildMonth(year: number, month: number, workoutsByDay: Map<number, numb
   const first = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0).getDate();
   const startDow = (first.getDay() + 6) % 7;
-  const today = new Date().getDate();
-  const thisMonth = new Date().getMonth() === month && new Date().getFullYear() === year;
+  const now = new Date();
+  const today = now.getDate();
+  const thisMonth = now.getMonth() === month && now.getFullYear() === year;
+  const futureMonth = year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
 
   const weeks: { day: number; intensity: number }[][] = [];
   let week: { day: number; intensity: number }[] = [];
@@ -27,7 +29,7 @@ function buildMonth(year: number, month: number, workoutsByDay: Map<number, numb
   for (let i = 0; i < startDow; i++) week.push({ day: 0, intensity: -1 });
 
   for (let d = 1; d <= lastDay; d++) {
-    if (thisMonth && d > today) {
+    if (futureMonth || (thisMonth && d > today)) {
       week.push({ day: d, intensity: -1 });
     } else {
       const count = workoutsByDay.get(d) || 0;
@@ -70,6 +72,25 @@ export class MonitorCalendar extends LitElement {
 
   @property({ attribute: false, hasChanged: () => true }) card!: MonitorAllenamentiCard;
 
+  // Currently viewed month (defaults to today on first render)
+  @state() private _viewYear: number = new Date().getFullYear();
+  @state() private _viewMonth: number = new Date().getMonth();
+
+  private _nav(delta: number) {
+    let m = this._viewMonth + delta;
+    let y = this._viewYear;
+    while (m < 0) { m += 12; y -= 1; }
+    while (m > 11) { m -= 12; y += 1; }
+    this._viewMonth = m;
+    this._viewYear = y;
+  }
+
+  private _goToday() {
+    const now = new Date();
+    this._viewYear = now.getFullYear();
+    this._viewMonth = now.getMonth();
+  }
+
   render() {
     const ms = this.card.monitorState;
     const workouts: Workout[] = ms?.workouts ?? [];
@@ -78,18 +99,22 @@ export class MonitorCalendar extends LitElement {
     const bestStreak = ms?.streak_best ?? 0;
 
     const now = new Date();
-    const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const viewing = new Date(this._viewYear, this._viewMonth, 1);
+    const isCurrentMonth = this._viewYear === now.getFullYear() && this._viewMonth === now.getMonth();
+    const monthPrefix = `${this._viewYear}-${String(this._viewMonth + 1).padStart(2, "0")}`;
 
     const monthWorkouts = workouts.filter(w => w.date?.startsWith(monthPrefix));
     const sessioni = monthWorkouts.length;
     const volumeKg = monthWorkouts.reduce((s, w) => s + (w.volume_kg || 0), 0);
     const kmTotali = monthWorkouts.reduce((s, w) => s + (w.distance_km || 0), 0);
 
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysInMonth = new Date(this._viewYear, this._viewMonth + 1, 0).getDate();
     const daysWithWorkout = new Set(monthWorkouts.map(w => {
       try { return new Date(w.date).getDate(); } catch { return 0; }
     }));
-    const riposi = Math.min(now.getDate(), daysInMonth) - daysWithWorkout.size;
+    // Riposi = giorni passati senza workout (solo fino a oggi per il mese corrente)
+    const dayLimit = isCurrentMonth ? now.getDate() : daysInMonth;
+    const riposi = Math.max(0, dayLimit - daysWithWorkout.size);
 
     const workoutsByDay = new Map<number, number>();
     for (const w of monthWorkouts) {
@@ -99,8 +124,8 @@ export class MonitorCalendar extends LitElement {
       } catch { /* skip */ }
     }
 
-    const monthName = now.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
-    const weeks = buildMonth(now.getFullYear(), now.getMonth(), workoutsByDay);
+    const monthName = viewing.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
+    const weeks = buildMonth(this._viewYear, this._viewMonth, workoutsByDay);
     const dayLabels = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 
     return html`
@@ -138,8 +163,19 @@ export class MonitorCalendar extends LitElement {
         </div>
 
         <div class="card">
-          <div class="card__header">
-            <h3 class="card__title" style="text-transform:capitalize">${monthName}</h3>
+          <div class="card__header" style="align-items:center;gap:8px">
+            <h3 class="card__title" style="text-transform:capitalize;flex:1">${monthName}</h3>
+            <button class="btn btn--ghost btn--icon" title="Mese precedente"
+              @click=${() => this._nav(-1)}
+              style="padding:6px 10px">${icon("chevron-left", 14)}</button>
+            ${!isCurrentMonth ? html`
+              <button class="btn btn--ghost" title="Oggi"
+                @click=${() => this._goToday()}
+                style="padding:6px 12px;font-size:12px">Oggi</button>
+            ` : ""}
+            <button class="btn btn--ghost btn--icon" title="Mese successivo"
+              @click=${() => this._nav(1)}
+              style="padding:6px 10px">${icon("chevron-right", 14)}</button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
             ${dayLabels.map(d => html`
