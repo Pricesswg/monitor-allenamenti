@@ -8,6 +8,6 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Pricesswg/monitor-allenamenti/issues",
   "requirements": [],
-  "version": "1.4.0",
+  "version": "1.4.1",
   "after_dependencies": ["withings"]
 }

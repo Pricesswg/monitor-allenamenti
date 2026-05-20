@@ -380,6 +380,7 @@ export const monitorStyles = css`
   .divider { height: 1px; background: var(--border-soft); margin: 16px 0; border: 0; }
 
   /* Grid */
+  .grid-1 { display: grid; grid-template-columns: 1fr; gap: var(--density-gap); }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--density-gap); }
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--density-gap); }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--density-gap); }

@@ -33,7 +33,7 @@ from .const import (
     SERVICE_IMPORT_APPLE_HEALTH,
 )
 from .apple_health import parse_apple_health_export, parse_apple_health_bytes
-from .gamification import calculate_points, update_streak, detect_pr
+from .gamification import calculate_points, update_streak, detect_pr  # noqa: F401
 from .models import default_state
 
 _LOGGER = logging.getLogger(__name__)
@@ -185,43 +185,20 @@ def _register_services(hass: HomeAssistant, coordinator: MonitorAllenamentiCoord
         )
 
     async def handle_import_apple_health(call: ServiceCall):
+        """Service-call variant: read file from disk, then bulk-merge."""
+        from functools import partial
+        from .apple_health import parse_apple_health_full
         file_path = call.data["file_path"]
         try:
-            workouts = await hass.async_add_executor_job(
-                parse_apple_health_export, file_path
+            parsed = await hass.async_add_executor_job(
+                partial(parse_apple_health_full, file_path=file_path)
             )
         except (FileNotFoundError, ValueError) as err:
             _LOGGER.error("Import Apple Health fallito: %s", err)
             return
 
-        imported = 0
-        skipped = 0
-        existing_dates = {
-            w.get("date") for w in coordinator.state.get("workouts", [])
-        }
-
-        for w in workouts:
-            # Skip duplicates: same date + type already logged
-            dup_key = f"{w['date']}_{w['type']}"
-            if dup_key in existing_dates:
-                skipped += 1
-                continue
-            existing_dates.add(dup_key)
-
-            await coordinator.log_workout(
-                workout_type=w["type"],
-                duration_min=w["duration_min"],
-                calories=w["calories"],
-                distance_km=w.get("distance_km", 0.0),
-                date=w.get("date"),
-                source="apple_health",
-            )
-            imported += 1
-
-        _LOGGER.info(
-            "Apple Health import completato: %d importati, %d duplicati saltati",
-            imported, skipped,
-        )
+        result = await coordinator.merge_health_data(parsed)
+        _LOGGER.info("Apple Health import completato: %s", result)
 
     hass.services.async_register(
         DOMAIN,
@@ -291,6 +268,15 @@ class AppleHealthUploadView(HomeAssistantView):
         except Exception as err:
             _LOGGER.error("Upload read error: %s", err)
             return self.json({"error": "Errore lettura file"}, status_code=400)
+
+        # Sanity check: validate magic bytes match declared extension
+        if filename.endswith(".zip") and not raw.startswith(b"PK"):
+            return self.json({"error": "Il file non sembra uno ZIP valido"}, status_code=422)
+        if filename.endswith(".xml") and not raw.lstrip()[:5] == b"<?xml":
+            # Be lenient: some exports may not have XML declaration
+            stripped = raw.lstrip()
+            if not (stripped.startswith(b"<") or stripped.startswith(b"<?xml")):
+                return self.json({"error": "Il file non sembra un XML valido"}, status_code=422)
 
         try:
             parsed = await hass.async_add_executor_job(
@@ -447,33 +433,50 @@ class MonitorAllenamentiCoordinator:
     async def merge_health_data(self, parsed: dict) -> dict:
         """Merge parsed Apple Health data into state with deduplication.
 
+        Bulk import: no per-workout events, single save at end, streak/PR
+        recalculated from full history (not from XML iteration order).
         Returns summary of imported/skipped counts per data type.
         """
         result = {}
 
         # -- Workouts (dedup by date+type) --
-        existing_wk = {
+        existing_wk: list[dict] = self._state.setdefault("workouts", [])
+        existing_keys = {
             f"{w.get('date')}_{w.get('type')}"
-            for w in self._state.get("workouts", [])
+            for w in existing_wk
         }
         imported_wk = 0
+        points_added = 0
         for w in parsed.get("workouts", []):
             dup_key = f"{w['date']}_{w['type']}"
-            if dup_key in existing_wk:
+            if dup_key in existing_keys:
                 continue
-            existing_wk.add(dup_key)
-            await self.log_workout(
-                workout_type=w["type"],
-                duration_min=w["duration_min"],
-                calories=w["calories"],
-                distance_km=w.get("distance_km", 0.0),
-                date=w.get("date"),
-                source="apple_health",
-            )
+            existing_keys.add(dup_key)
+
+            points = calculate_points(w["type"])
+            existing_wk.append({
+                "id": str(uuid.uuid4()),
+                "date": w["date"],
+                "type": w["type"],
+                "duration_min": w["duration_min"],
+                "calories": w["calories"],
+                "distance_km": w.get("distance_km", 0.0),
+                "volume_kg": 0.0,
+                "sets": 0,
+                "points": points,
+                "source": "apple_health",
+            })
+            points_added += points
             imported_wk += 1
         result["workouts"] = imported_wk
+        self._state["points_total"] = self._state.get("points_total", 0) + points_added
 
-        # -- Merge date-keyed lists (dedup by date, replace-or-insert) --
+        # Rebuild PRs and streak from full history (no events emitted)
+        if imported_wk > 0:
+            self._recalc_personal_records()
+            self._recalc_streak()
+
+        # -- Merge date-keyed lists (dedup by date, sort once) --
         health_keys = [
             "activity_summaries",
             "sleep_history",
@@ -487,7 +490,7 @@ class MonitorAllenamentiCoordinator:
                 result[key] = 0
                 continue
 
-            existing = self._state.get(key, [])
+            existing = self._state.setdefault(key, [])
             existing_dates = {r["date"] for r in existing}
             added = 0
             for r in new_records:
@@ -496,14 +499,71 @@ class MonitorAllenamentiCoordinator:
                     existing_dates.add(r["date"])
                     added += 1
 
-            # Sort by date and store
             existing.sort(key=lambda x: x["date"])
-            self._state[key] = existing
             result[key] = added
 
+        # Single save at the end
         await self._save()
         _LOGGER.info("Apple Health merge: %s", result)
         return result
+
+    def _recalc_personal_records(self) -> None:
+        """Rebuild personal_records from the full workout history."""
+        prs: dict[str, float] = {}
+        for w in self._state.get("workouts", []):
+            wtype = w.get("type", "")
+            if not wtype:
+                continue
+            for metric in ("duration_min", "calories", "distance_km", "volume_kg"):
+                val = w.get(metric, 0) or 0
+                if val > 0:
+                    key = f"{wtype}_{metric}"
+                    if val > prs.get(key, 0):
+                        prs[key] = val
+        self._state["personal_records"] = prs
+
+    def _recalc_streak(self) -> None:
+        """Recompute current streak from full workout history.
+
+        Walks unique workout dates backwards, counting consecutive days.
+        """
+        workouts = self._state.get("workouts", [])
+        # Unique day-precision dates
+        dates_set = set()
+        for w in workouts:
+            d = (w.get("date") or "")[:10]
+            if len(d) == 10:
+                dates_set.add(d)
+
+        if not dates_set:
+            self._state["streak"] = 0
+            self._state["last_workout_date"] = None
+            return
+
+        dates = sorted(dates_set)
+        last_date_str = dates[-1]
+        try:
+            last_date = datetime.fromisoformat(last_date_str).date()
+        except ValueError:
+            return
+
+        streak = 1
+        prev = last_date
+        for d in reversed(dates[:-1]):
+            try:
+                dt = datetime.fromisoformat(d).date()
+            except ValueError:
+                continue
+            gap = (prev - dt).days
+            if gap == 1:
+                streak += 1
+                prev = dt
+            else:
+                break
+
+        self._state["streak"] = streak
+        self._state["streak_best"] = max(self._state.get("streak_best", 0), streak)
+        self._state["last_workout_date"] = last_date_str
 
     # --- Periodic ---
 

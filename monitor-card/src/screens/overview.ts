@@ -39,7 +39,9 @@ function workoutLabel(type: string): string {
 }
 
 function ringArc(pct: number, r: number, color: string) {
-  const clamped = Math.min(1, Math.max(0, pct));
+  // Guard NaN/Infinity from missing goals
+  const safe = Number.isFinite(pct) ? pct : 0;
+  const clamped = Math.min(1, Math.max(0, safe));
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - clamped);
   return svg`
@@ -225,19 +227,23 @@ export class MonitorOverview extends LitElement {
               <span class="fw-600 text-sm">Sonno</span>
               <span class="text-mute text-xs">${sleep.date}</span>
             </div>
-            <div class="mono fw-700" style="font-size:22px;margin-bottom:10px">
+            <div class="mono fw-700" style="font-size:22px;margin-bottom:4px">
               ${Math.floor(sleep.total_min / 60)}h ${sleep.total_min % 60}m
             </div>
+            ${sleep.awake_min > 0 ? html`
+              <div class="text-mute text-xs" style="margin-bottom:8px">
+                + ${sleep.awake_min}m svegli (totale ${Math.floor((sleep.total_min + sleep.awake_min) / 60)}h ${(sleep.total_min + sleep.awake_min) % 60}m in letto)
+              </div>
+            ` : ""}
             <div style="display:flex;gap:4px;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px">
-              <div style="flex:${sleep.deep_min};background:var(--accent)" title="Deep ${sleep.deep_min}m"></div>
-              <div style="flex:${sleep.core_min};background:var(--ok)" title="Core ${sleep.core_min}m"></div>
-              <div style="flex:${sleep.rem_min};background:var(--warn)" title="REM ${sleep.rem_min}m"></div>
-              <div style="flex:${sleep.awake_min || 1};background:var(--border)" title="Sveglio ${sleep.awake_min}m"></div>
+              ${sleep.deep_min > 0 ? html`<div style="flex:${sleep.deep_min};background:var(--accent)" title="Deep ${sleep.deep_min}m"></div>` : ""}
+              ${sleep.core_min > 0 ? html`<div style="flex:${sleep.core_min};background:var(--ok)" title="Core ${sleep.core_min}m"></div>` : ""}
+              ${sleep.rem_min > 0 ? html`<div style="flex:${sleep.rem_min};background:var(--warn)" title="REM ${sleep.rem_min}m"></div>` : ""}
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <span class="text-xs"><span style="color:var(--accent)">●</span> Deep ${sleep.deep_min}m</span>
-              <span class="text-xs"><span style="color:var(--ok)">●</span> Core ${sleep.core_min}m</span>
-              <span class="text-xs"><span style="color:var(--warn)">●</span> REM ${sleep.rem_min}m</span>
+              ${sleep.deep_min > 0 ? html`<span class="text-xs"><span style="color:var(--accent)">●</span> Deep ${sleep.deep_min}m</span>` : ""}
+              ${sleep.core_min > 0 ? html`<span class="text-xs"><span style="color:var(--ok)">●</span> Core ${sleep.core_min}m</span>` : ""}
+              ${sleep.rem_min > 0 ? html`<span class="text-xs"><span style="color:var(--warn)">●</span> REM ${sleep.rem_min}m</span>` : ""}
             </div>
           </div>
         ` : ""}
