@@ -4,7 +4,7 @@ import { monitorStyles } from "../styles";
 import { icon } from "../icons";
 import { fmtNum, fmtDelta, sparklinePath } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
-import type { WeightRecord } from "../types";
+import type { WeightRecord, RestingHR, VO2MaxRecord, HRVRecord } from "../types";
 
 const RANGES = ["7G", "30G", "3M", "6M", "1A"] as const;
 
@@ -175,6 +175,81 @@ export class MonitorBody extends LitElement {
           </div>
         </div>
 
+        <!-- Salute cardiaca -->
+        ${this._renderCardioHealth()}
+
+      </div>
+    `;
+  }
+
+  private _renderCardioHealth() {
+    const ms = this.card.monitorState;
+    const rhr: RestingHR[] = ms?.resting_hr ?? [];
+    const vo2: VO2MaxRecord[] = ms?.vo2max ?? [];
+    const hrv: HRVRecord[] = ms?.hrv_daily ?? [];
+
+    if (rhr.length === 0 && vo2.length === 0 && hrv.length === 0) return "";
+
+    const sparkW = 200;
+    const sparkH = 40;
+
+    const rhrVals = rhr.slice(-30).map(r => r.bpm);
+    const rhrPath = rhrVals.length >= 2 ? sparklinePath(rhrVals, sparkW, sparkH) : "";
+    const rhrLast = rhr.length > 0 ? rhr[rhr.length - 1].bpm : 0;
+
+    const vo2Vals = vo2.map(r => r.value);
+    const vo2Path = vo2Vals.length >= 2 ? sparklinePath(vo2Vals, sparkW, sparkH) : "";
+    const vo2Last = vo2.length > 0 ? vo2[vo2.length - 1].value : 0;
+
+    const hrvVals = hrv.slice(-30).map(r => r.value_ms);
+    const hrvPath = hrvVals.length >= 2 ? sparklinePath(hrvVals, sparkW, sparkH) : "";
+    const hrvLast = hrv.length > 0 ? hrv[hrv.length - 1].value_ms : 0;
+
+    return html`
+      <div>
+        <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Salute cardiaca</h2>
+        <div class="grid-2" style="grid-template-columns:1fr 1fr;gap:14px">
+
+          ${rhrPath ? html`
+            <div class="card" style="padding:16px">
+              <div class="sp-between" style="margin-bottom:8px">
+                <span class="fw-600 text-sm">FC riposo</span>
+                <span class="mono fw-700" style="font-size:20px;color:var(--danger)">${rhrLast} <span class="text-mute" style="font-size:12px">bpm</span></span>
+              </div>
+              <svg class="sparkline" width="100%" height="${sparkH}" viewBox="0 0 ${sparkW} ${sparkH}" preserveAspectRatio="none">
+                <polyline points="${rhrPath.replace(/[ML]/g, "")}" stroke="var(--danger)"/>
+              </svg>
+              <div class="text-mute text-xs" style="margin-top:4px">Ultimi 30 giorni</div>
+            </div>
+          ` : ""}
+
+          ${vo2Path ? html`
+            <div class="card" style="padding:16px">
+              <div class="sp-between" style="margin-bottom:8px">
+                <span class="fw-600 text-sm">VO₂ Max</span>
+                <span class="mono fw-700" style="font-size:20px;color:var(--ok)">${fmtNum(vo2Last, 1)} <span class="text-mute" style="font-size:12px">mL/min·kg</span></span>
+              </div>
+              <svg class="sparkline" width="100%" height="${sparkH}" viewBox="0 0 ${sparkW} ${sparkH}" preserveAspectRatio="none">
+                <polyline points="${vo2Path.replace(/[ML]/g, "")}" stroke="var(--ok)"/>
+              </svg>
+              <div class="text-mute text-xs" style="margin-top:4px">Trend storico</div>
+            </div>
+          ` : ""}
+
+          ${hrvPath ? html`
+            <div class="card" style="padding:16px">
+              <div class="sp-between" style="margin-bottom:8px">
+                <span class="fw-600 text-sm">HRV</span>
+                <span class="mono fw-700" style="font-size:20px;color:var(--accent)">${fmtNum(hrvLast, 0)} <span class="text-mute" style="font-size:12px">ms</span></span>
+              </div>
+              <svg class="sparkline" width="100%" height="${sparkH}" viewBox="0 0 ${sparkW} ${sparkH}" preserveAspectRatio="none">
+                <polyline points="${hrvPath.replace(/[ML]/g, "")}" stroke="var(--accent)"/>
+              </svg>
+              <div class="text-mute text-xs" style="margin-top:4px">Ultimi 30 giorni</div>
+            </div>
+          ` : ""}
+
+        </div>
       </div>
     `;
   }

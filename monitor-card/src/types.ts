@@ -53,6 +53,40 @@ export interface WeightRecord {
   body_water?: number | null;
 }
 
+export interface ActivitySummary {
+  date: string;
+  active_energy: number;
+  active_energy_goal: number;
+  exercise_min: number;
+  exercise_goal: number;
+  stand_hours: number;
+  stand_goal: number;
+}
+
+export interface SleepNight {
+  date: string;
+  core_min: number;
+  deep_min: number;
+  rem_min: number;
+  awake_min: number;
+  total_min: number;
+}
+
+export interface RestingHR {
+  date: string;
+  bpm: number;
+}
+
+export interface VO2MaxRecord {
+  date: string;
+  value: number;
+}
+
+export interface HRVRecord {
+  date: string;
+  value_ms: number;
+}
+
 export interface MonitorState {
   workouts: Workout[];
   weight_history: WeightRecord[];
@@ -61,4 +95,9 @@ export interface MonitorState {
   streak_best: number;
   personal_records: Record<string, number>;
   last_workout_date: string | null;
+  activity_summaries: ActivitySummary[];
+  sleep_history: SleepNight[];
+  resting_hr: RestingHR[];
+  vo2max: VO2MaxRecord[];
+  hrv_daily: HRVRecord[];
 }

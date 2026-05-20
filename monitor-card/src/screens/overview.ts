@@ -4,7 +4,7 @@ import { monitorStyles } from "../styles";
 import { icon } from "../icons";
 import { fmtNum, fmtDelta, sparklinePath } from "../utils";
 import type { MonitorAllenamentiCard } from "../monitor-card";
-import type { Workout } from "../types";
+import type { Workout, ActivitySummary, SleepNight, MonitorState } from "../types";
 
 function italianDate(): string {
   const now = new Date();
@@ -22,6 +22,7 @@ function workoutIcon(type: string): string {
     case "corsa": return "run";
     case "cammino": return "heart";
     case "hiit": return "flame";
+    case "nuoto": return "droplet";
     default: return "dumbbell";
   }
 }
@@ -32,8 +33,21 @@ function workoutLabel(type: string): string {
     case "corsa": return "Corsa";
     case "cammino": return "Cammino";
     case "hiit": return "HIIT";
+    case "nuoto": return "Nuoto";
     default: return type;
   }
+}
+
+function ringArc(pct: number, r: number, color: string) {
+  const clamped = Math.min(1, Math.max(0, pct));
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - clamped);
+  return svg`
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--border)" stroke-width="6" opacity="0.3"/>
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke="${color}" stroke-width="6"
+      stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+      stroke-linecap="round" transform="rotate(-90 50 50)"/>
+  `;
 }
 
 function formatWorkoutDate(iso: string): string {
@@ -133,6 +147,8 @@ export class MonitorOverview extends LitElement {
           </div>
         </div>
 
+        ${this._renderHealthCards(ms)}
+
         ${sparkD ? html`
           <div>
             <h2 style="margin:0 0 12px;font-size:16px;font-weight:600">Peso</h2>
@@ -159,6 +175,100 @@ export class MonitorOverview extends LitElement {
         </div>
 
       </div>
+    `;
+  }
+  private _renderHealthCards(ms: any) {
+    const activity: ActivitySummary | undefined = (ms?.activity_summaries ?? []).slice(-1)[0];
+    const sleep: SleepNight | undefined = (ms?.sleep_history ?? []).slice(-1)[0];
+    const rhr = (ms?.resting_hr ?? []).slice(-1)[0];
+    const vo2 = (ms?.vo2max ?? []).slice(-1)[0];
+    const hrv = (ms?.hrv_daily ?? []).slice(-1)[0];
+
+    if (!activity && !sleep && !rhr) return "";
+
+    return html`
+      <div class="grid-2" style="gap:14px">
+
+        ${activity ? html`
+          <div class="card" style="padding:16px">
+            <div class="sp-between" style="margin-bottom:12px">
+              <span class="fw-600 text-sm">Attività oggi</span>
+              <span class="text-mute text-xs">${activity.date}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px">
+              <svg width="80" height="80" viewBox="0 0 100 100">
+                ${ringArc(activity.active_energy / (activity.active_energy_goal || 1), 44, "var(--danger)")}
+                ${ringArc(activity.exercise_min / (activity.exercise_goal || 1), 35, "var(--ok)")}
+                ${ringArc(activity.stand_hours / (activity.stand_goal || 1), 26, "var(--accent)")}
+              </svg>
+              <div class="col" style="gap:6px;flex:1">
+                <div class="sp-between">
+                  <span class="text-xs" style="color:var(--danger)">Movimento</span>
+                  <span class="mono text-xs fw-600">${fmtNum(activity.active_energy)}/${fmtNum(activity.active_energy_goal)} kcal</span>
+                </div>
+                <div class="sp-between">
+                  <span class="text-xs" style="color:var(--ok)">Esercizio</span>
+                  <span class="mono text-xs fw-600">${fmtNum(activity.exercise_min)}/${fmtNum(activity.exercise_goal)} min</span>
+                </div>
+                <div class="sp-between">
+                  <span class="text-xs" style="color:var(--accent)">In piedi</span>
+                  <span class="mono text-xs fw-600">${fmtNum(activity.stand_hours)}/${fmtNum(activity.stand_goal)} h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : ""}
+
+        ${sleep ? html`
+          <div class="card" style="padding:16px">
+            <div class="sp-between" style="margin-bottom:12px">
+              <span class="fw-600 text-sm">Sonno</span>
+              <span class="text-mute text-xs">${sleep.date}</span>
+            </div>
+            <div class="mono fw-700" style="font-size:22px;margin-bottom:10px">
+              ${Math.floor(sleep.total_min / 60)}h ${sleep.total_min % 60}m
+            </div>
+            <div style="display:flex;gap:4px;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px">
+              <div style="flex:${sleep.deep_min};background:var(--accent)" title="Deep ${sleep.deep_min}m"></div>
+              <div style="flex:${sleep.core_min};background:var(--ok)" title="Core ${sleep.core_min}m"></div>
+              <div style="flex:${sleep.rem_min};background:var(--warn)" title="REM ${sleep.rem_min}m"></div>
+              <div style="flex:${sleep.awake_min || 1};background:var(--border)" title="Sveglio ${sleep.awake_min}m"></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span class="text-xs"><span style="color:var(--accent)">●</span> Deep ${sleep.deep_min}m</span>
+              <span class="text-xs"><span style="color:var(--ok)">●</span> Core ${sleep.core_min}m</span>
+              <span class="text-xs"><span style="color:var(--warn)">●</span> REM ${sleep.rem_min}m</span>
+            </div>
+          </div>
+        ` : ""}
+
+      </div>
+
+      ${(rhr || vo2 || hrv) ? html`
+        <div class="grid-${[rhr, vo2, hrv].filter(Boolean).length}" style="gap:14px">
+          ${rhr ? html`
+            <div class="kpi">
+              <div class="kpi__label">FC riposo</div>
+              <div class="kpi__value" style="color:var(--danger)">${rhr.bpm}<span class="text-mute" style="font-size:14px;margin-left:4px">bpm</span></div>
+              <div class="kpi__delta">${rhr.date}</div>
+            </div>
+          ` : ""}
+          ${vo2 ? html`
+            <div class="kpi">
+              <div class="kpi__label">VO₂ Max</div>
+              <div class="kpi__value" style="color:var(--ok)">${fmtNum(vo2.value, 1)}</div>
+              <div class="kpi__delta">mL/min·kg</div>
+            </div>
+          ` : ""}
+          ${hrv ? html`
+            <div class="kpi">
+              <div class="kpi__label">HRV</div>
+              <div class="kpi__value" style="color:var(--accent)">${fmtNum(hrv.value_ms, 0)}<span class="text-mute" style="font-size:14px;margin-left:4px">ms</span></div>
+              <div class="kpi__delta">${hrv.date}</div>
+            </div>
+          ` : ""}
+        </div>
+      ` : ""}
     `;
   }
 }

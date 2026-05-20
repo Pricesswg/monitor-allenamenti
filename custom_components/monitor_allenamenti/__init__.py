@@ -148,6 +148,11 @@ def _register_websocket_api(hass: HomeAssistant) -> None:
                 "streak_best": state.get("streak_best", 0),
                 "personal_records": state.get("personal_records", {}),
                 "last_workout_date": state.get("last_workout_date"),
+                "activity_summaries": (state.get("activity_summaries") or [])[-90:],
+                "sleep_history": (state.get("sleep_history") or [])[-90:],
+                "resting_hr": (state.get("resting_hr") or [])[-90:],
+                "vo2max": state.get("vo2max") or [],
+                "hrv_daily": (state.get("hrv_daily") or [])[-90:],
             })
             return
         connection.send_result(msg["id"], {})
@@ -288,7 +293,7 @@ class AppleHealthUploadView(HomeAssistantView):
             return self.json({"error": "Errore lettura file"}, status_code=400)
 
         try:
-            workouts = await hass.async_add_executor_job(
+            parsed = await hass.async_add_executor_job(
                 parse_apple_health_bytes, raw, filename
             )
         except (FileNotFoundError, ValueError) as err:
@@ -297,31 +302,8 @@ class AppleHealthUploadView(HomeAssistantView):
             _LOGGER.exception("Parse error")
             return self.json({"error": f"Errore parsing: {err}"}, status_code=500)
 
-        imported = 0
-        skipped = 0
-        existing_keys = {
-            f"{w.get('date')}_{w.get('type')}"
-            for w in coordinator.state.get("workouts", [])
-        }
-
-        for w in workouts:
-            dup_key = f"{w['date']}_{w['type']}"
-            if dup_key in existing_keys:
-                skipped += 1
-                continue
-            existing_keys.add(dup_key)
-
-            await coordinator.log_workout(
-                workout_type=w["type"],
-                duration_min=w["duration_min"],
-                calories=w["calories"],
-                distance_km=w.get("distance_km", 0.0),
-                date=w.get("date"),
-                source="apple_health",
-            )
-            imported += 1
-
-        return self.json({"imported": imported, "skipped": skipped})
+        result = await coordinator.merge_health_data(parsed)
+        return self.json(result)
 
 
 class MonitorAllenamentiCoordinator:
@@ -459,6 +441,69 @@ class MonitorAllenamentiCoordinator:
 
         await self._save()
         _LOGGER.info("Workout logged: %s (%d pt)", workout_type, points)
+
+    # --- Bulk import from Apple Health ---
+
+    async def merge_health_data(self, parsed: dict) -> dict:
+        """Merge parsed Apple Health data into state with deduplication.
+
+        Returns summary of imported/skipped counts per data type.
+        """
+        result = {}
+
+        # -- Workouts (dedup by date+type) --
+        existing_wk = {
+            f"{w.get('date')}_{w.get('type')}"
+            for w in self._state.get("workouts", [])
+        }
+        imported_wk = 0
+        for w in parsed.get("workouts", []):
+            dup_key = f"{w['date']}_{w['type']}"
+            if dup_key in existing_wk:
+                continue
+            existing_wk.add(dup_key)
+            await self.log_workout(
+                workout_type=w["type"],
+                duration_min=w["duration_min"],
+                calories=w["calories"],
+                distance_km=w.get("distance_km", 0.0),
+                date=w.get("date"),
+                source="apple_health",
+            )
+            imported_wk += 1
+        result["workouts"] = imported_wk
+
+        # -- Merge date-keyed lists (dedup by date, replace-or-insert) --
+        health_keys = [
+            "activity_summaries",
+            "sleep_history",
+            "resting_hr",
+            "vo2max",
+            "hrv_daily",
+        ]
+        for key in health_keys:
+            new_records = parsed.get(key, [])
+            if not new_records:
+                result[key] = 0
+                continue
+
+            existing = self._state.get(key, [])
+            existing_dates = {r["date"] for r in existing}
+            added = 0
+            for r in new_records:
+                if r["date"] not in existing_dates:
+                    existing.append(r)
+                    existing_dates.add(r["date"])
+                    added += 1
+
+            # Sort by date and store
+            existing.sort(key=lambda x: x["date"])
+            self._state[key] = existing
+            result[key] = added
+
+        await self._save()
+        _LOGGER.info("Apple Health merge: %s", result)
+        return result
 
     # --- Periodic ---
 

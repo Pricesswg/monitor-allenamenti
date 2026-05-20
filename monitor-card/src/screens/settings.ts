@@ -28,6 +28,7 @@ const WORKOUT_TYPES: WorkoutTypeConfig[] = [
   { key: "corsa",   label: "Corsa",   points: 30, iconName: "run",      colors: COLOR_OPTIONS, defaultColor: "chip--ok" },
   { key: "cammino", label: "Cammino", points: 20, iconName: "heart",    colors: COLOR_OPTIONS, defaultColor: "chip--warn" },
   { key: "hiit",    label: "HIIT",    points: 35, iconName: "flame",    colors: COLOR_OPTIONS, defaultColor: "chip--danger" },
+  { key: "nuoto",   label: "Nuoto",   points: 35, iconName: "droplet",  colors: COLOR_OPTIONS, defaultColor: "chip--xp" },
 ];
 
 /* -- Withings sensors ---------------------------------------------------- */
@@ -259,8 +260,16 @@ export class MonitorSettings extends LitElement {
       }
 
       this._importStatus = "done";
-      this._importMessage = `Importati ${result.imported} allenamenti` +
-        (result.skipped > 0 ? `, ${result.skipped} duplicati saltati` : "") + ".";
+      const parts: string[] = [];
+      if (result.workouts > 0) parts.push(`${result.workouts} allenamenti`);
+      if (result.activity_summaries > 0) parts.push(`${result.activity_summaries} giorni attività`);
+      if (result.sleep_history > 0) parts.push(`${result.sleep_history} notti sonno`);
+      if (result.resting_hr > 0) parts.push(`${result.resting_hr} FC riposo`);
+      if (result.vo2max > 0) parts.push(`${result.vo2max} VO2Max`);
+      if (result.hrv_daily > 0) parts.push(`${result.hrv_daily} HRV`);
+      this._importMessage = parts.length > 0
+        ? `Importati: ${parts.join(", ")}.`
+        : "Nessun dato nuovo (tutti duplicati).";
       this._selectedFile = null;
       this._importFileName = "";
     } catch (err: any) {

@@ -7,10 +7,10 @@ import type { MonitorAllenamentiCard } from "../monitor-card";
 import type { Workout, WeightRecord } from "../types";
 
 const TYPE_LABELS: Record<string, string> = {
-  pesi: "Pesi", corsa: "Corsa", cammino: "Cammino", hiit: "HIIT",
+  pesi: "Pesi", corsa: "Corsa", cammino: "Cammino", hiit: "HIIT", nuoto: "Nuoto",
 };
 const TYPE_COLORS: Record<string, string> = {
-  pesi: "var(--accent)", corsa: "var(--ok)", cammino: "var(--warn)", hiit: "var(--danger)",
+  pesi: "var(--accent)", corsa: "var(--ok)", cammino: "var(--warn)", hiit: "var(--danger)", nuoto: "var(--xp)",
 };
 
 interface PRDisplay {

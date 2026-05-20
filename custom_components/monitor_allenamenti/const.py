@@ -1,7 +1,7 @@
 """Constants for Monitor Allenamenti."""
 
 DOMAIN = "monitor_allenamenti"
-VERSION = "1.3.0"
+VERSION = "1.4.0"
 STORAGE_KEY = "monitor_allenamenti_state"
 STORAGE_VERSION = 1
 
@@ -11,6 +11,7 @@ WORKOUT_TYPES = {
     "corsa": {"name": "Corsa", "points": 30},
     "cammino": {"name": "Cammino", "points": 20},
     "hiit": {"name": "HIIT", "points": 35},
+    "nuoto": {"name": "Nuoto", "points": 35},
 }
 
 # Withings sensor entity IDs
