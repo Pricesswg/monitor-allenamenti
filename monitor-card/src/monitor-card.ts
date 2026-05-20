@@ -13,7 +13,7 @@ import "./screens/stats";
 import "./screens/settings";
 import "./editor";
 
-const CARD_VERSION = "1.4.3";
+const CARD_VERSION = "1.5.0";
 
 const TITLE_MAP: Record<Screen, [string, string]> = {
   overview: ["Panoramica", "monitor / panoramica"],

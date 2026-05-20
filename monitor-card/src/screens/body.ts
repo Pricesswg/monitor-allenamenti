@@ -58,9 +58,21 @@ export class MonitorBody extends LitElement {
     const filtered = allHistory.filter(w => w.date >= cutoffStr);
     const trend = filtered.map(w => w.weight);
 
+    // How many days of history we actually have (oldest entry → today)
+    const firstDate = allHistory.length > 0 ? allHistory[0].date : "";
+    let historyDays = 0;
+    if (firstDate) {
+      const first = new Date(firstDate);
+      const now = new Date();
+      historyDays = Math.max(1, Math.round((now.getTime() - first.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+    }
+
     const sparkW = 460;
     const sparkH = 140;
     const path = trend.length >= 2 ? sparklinePath(trend, sparkW, sparkH) : "";
+    const rangeCovered = filtered.length >= 2
+      ? `${filtered[0].date} → ${filtered[filtered.length - 1].date}`
+      : "";
 
     return html`
       <div class="col" style="gap:22px">
@@ -71,12 +83,17 @@ export class MonitorBody extends LitElement {
         </div>
 
         <div class="segmented">
-          ${RANGES.map(r => html`
-            <button data-active="${this._range === r}"
-              @click=${() => { this._range = r; }}>
-              ${r}
-            </button>
-          `)}
+          ${RANGES.map(r => {
+            const enough = historyDays >= rangeDays(r) || r === "7G" || historyDays === 0;
+            return html`
+              <button data-active="${this._range === r}"
+                style="${enough ? "" : "opacity:0.45"}"
+                title="${enough ? "" : `Servono almeno ${rangeDays(r)} giorni di storico (ne hai ${historyDays})`}"
+                @click=${() => { this._range = r; }}>
+                ${r}
+              </button>
+            `;
+          })}
         </div>
 
         <!-- Weight chart -->
@@ -102,9 +119,17 @@ export class MonitorBody extends LitElement {
               <path d="${path} L${sparkW},${sparkH} L0,${sparkH} Z" fill="url(#wg)"/>
               <polyline points="${path.replace(/[ML]/g, "")}" stroke="var(--accent)"/>
             </svg>
+            <div class="text-mute text-xs" style="margin-top:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+              <span>${filtered.length} misurazioni · ${rangeCovered}</span>
+              ${historyDays < days ? html`
+                <span>Storico totale: ${historyDays} giorni (richiesti ${days})</span>
+              ` : ""}
+            </div>
           ` : html`
-            <div style="height:200px;display:grid;place-items:center;color:var(--text-muted)">
-              Nessun dato peso per questo periodo
+            <div style="height:200px;display:grid;place-items:center;color:var(--text-muted);text-align:center;padding:0 16px">
+              ${allHistory.length === 0
+                ? html`Nessuno storico peso ancora.<br/><span class="text-xs">Lo storico cresce di una misurazione al giorno dalla bilancia Withings.</span>`
+                : html`Nessun dato nel periodo selezionato.<br/><span class="text-xs">Hai ${historyDays} giorni di storico totali.</span>`}
             </div>
           `}
         </div>
