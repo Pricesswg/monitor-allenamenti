@@ -288,7 +288,14 @@ class AppleHealthUploadView(HomeAssistantView):
             _LOGGER.exception("Parse error")
             return self.json({"error": f"Errore parsing: {err}"}, status_code=500)
 
-        result = await coordinator.merge_health_data(parsed)
+        try:
+            result = await coordinator.merge_health_data(parsed)
+        except Exception as err:
+            _LOGGER.exception("Merge error after parsing %d workouts", len(parsed.get("workouts", [])))
+            return self.json(
+                {"error": f"Errore merge dati: {type(err).__name__}: {err}"},
+                status_code=500,
+            )
         return self.json(result)
 
 
@@ -313,8 +320,16 @@ class MonitorAllenamentiCoordinator:
         self._listeners = [cb for cb in self._listeners if cb != callback]
 
     def _notify_listeners(self) -> None:
+        import asyncio
         for listener in self._listeners:
-            self.hass.async_create_task(listener())
+            try:
+                result = listener()
+                # Sync callbacks (e.g. Entity.async_write_ha_state) return None
+                # and have already executed; only schedule actual coroutines.
+                if asyncio.iscoroutine(result):
+                    self.hass.async_create_task(result)
+            except Exception:
+                _LOGGER.exception("Listener callback failed")
 
     async def async_load(self) -> None:
         """Load state from storage or create default."""

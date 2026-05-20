@@ -1282,7 +1282,7 @@ function t(t,e,i,s){var r,a=arguments.length,o=a<3?e:null===s?s=Object.getOwnPro
           <div class="sidebar__brand-mark">${ft("dumbbell",16)}</div>
           ${e?G:V`<div>
                 <div class="sidebar__brand-name">Monitor</div>
-                <div class="sidebar__brand-sub">v${"1.4.2"}</div>
+                <div class="sidebar__brand-sub">v${"1.4.3"}</div>
               </div>`}
         </div>
         ${e?G:V`<div class="nav-section">Tracking</div>`}
